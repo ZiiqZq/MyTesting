@@ -1,0 +1,26 @@
+{
+  "name": "project_testing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:css": "npx @tailwindcss/cli -i ./Assets/css/input.css -o ./Assets/css/css.css --config tailwind.config.js",
+    "dev": "npm-run-all --parallel build:css start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.15",
+    "electron": "^38.3.0",
+    "mysql2": "^3.15.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "autoprefixer": "^10.4.21",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16"
+  },
+  "keywords": []
+}

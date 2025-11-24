@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"/>
+    <link rel="stylesheet" href="../Assets/css/css.css">
+</head> 
+<body class="bg-gray-100">
+    <!-- Main Container -->
+    <div class="h-screen ">
+        <!-- sidebar -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen ">
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto md:px-4 p-4 bg-white border border-gray-300 rounded-tl-2xl">
+                <div class="px-2">
+                    <!-- Admin Button -->
+                    <!-- <div class="mb-4">
+                        <button type="button" id="Admin" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 shadow-sm transition-all duration-200">
+                            Admin Panel
+                        </button>
+                    </div> -->
+
+                    <!-- Button Group -->
+                    <!-- <div class="inline-flex rounded-lg shadow-sm mb-8" role="group">
+                        <button type="button" id="First" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
+                            First-test
+                        </button>
+                        <button type="button" id="Final" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
+                            Final-Test
+                        </button>
+                        <button type="button" id="Spec" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
+                            Spectro-Test
+                        </button>
+                    </div> -->
+
+                    <!-- Stats Cards Grid -->
+                    <div class="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+                        <!-- Card 1 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Total Users</p>
+                                    <p class="text-2xl font-bold text-gray-900 mt-1">1,234</p>
+                                </div>
+                                <div class="p-3 bg-indigo-100 rounded-full">
+                                    <svg class="w-6 h-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-green-600">+12% from last month</p>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Revenue</p>
+                                    <p class="text-2xl font-bold text-gray-900 mt-1">$45.2K</p>
+                                </div>
+                                <div class="p-3 bg-green-100 rounded-full">
+                                    <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-green-600">+8% from last month</p>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Orders</p>
+                                    <p class="text-2xl font-bold text-gray-900 mt-1">567</p>
+                                </div>
+                                <div class="p-3 bg-yellow-100 rounded-full">
+                                    <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-red-600">-3% from last month</p>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Conversion</p>
+                                    <p class="text-2xl font-bold text-gray-900 mt-1">23.4%</p>
+                                </div>
+                                <div class="p-3 bg-purple-100 rounded-full">
+                                    <svg class="w-6 h-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-green-600">+5% from last month</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Card -->
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900">New user registered</p>
+                                        <p class="text-sm text-gray-500">John Doe joined 5 minutes ago</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900">New order received</p>
+                                        <p class="text-sm text-gray-500">Order #1234 - $125.00</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900">System alert</p>
+                                        <p class="text-sm text-gray-500">Database backup completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Load Sidebar First -->
+    <script src="../Assets/js/sidebar-loader.js"></script>
+    <script>
+        // Initialize sidebar with SPA navigation
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Dashboard loaded, initializing sidebar...');
+            
+            // Load sidebar and set dashboard as active page
+            await SidebarLoader.load('sidebar-container', 'view');
+            
+            // Listen for page changes from main process
+            if (window.electronAPI && window.electronAPI.onPageLoaded) {
+                window.electronAPI.onPageLoaded((pageName) => {
+                    console.log('Page changed to:', pageName);
+                    SidebarLoader.setActivePage(pageName);
+                });
+            }
+        });
+    </script>
+    
+    <!-- Load Dashboard Scripts -->
+    <script src="../Assets/js/View.js"></script>
+</body>
+</html>
