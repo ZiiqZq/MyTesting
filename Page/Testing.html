@@ -134,7 +134,7 @@
       .var-display {
         background-color: whitesmoke;
         border-radius: 0.375rem;
-        padding: 0.125rem 0.25rem; /* DIUBAH: Padding diperkecil */
+        padding: 0.125rem 0.25rem;
         border: 1px solid #e5e7eb;
       }
 
@@ -634,10 +634,10 @@
                 </div>
                 <div id="seriesContainer" class="hidden">
                   <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Series *</label
+                    >Device *</label
                   >
                   <select id="selectSeries" class="input-field">
-                    <option value="">-- Select Series --</option>
+                    <option value="">-- Select Device --</option>
                   </select>
                 </div>
               </div>
@@ -671,7 +671,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Operator Name *</label
+                    >Operator *</label
                   >
                   <input
                     type="text"
@@ -728,7 +728,7 @@
                     type="text"
                     id="inputSerialNumber"
                     class="input-field"
-                    placeholder="e.g., 123456"
+                    placeholder="Enter starting serial number"
                     oninput="validateNumericInput(this)"
                   />
                   <p class="text-xs text-gray-500 mt-1">

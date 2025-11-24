@@ -472,7 +472,7 @@ function populateSeriesDropdown() {
     return;
   }
 
-  select.innerHTML = '<option value="">-- Select Series --</option>';
+  select.innerHTML = '<option value="">-- Select Device --</option>';
 
   productSeries.forEach((product) => {
     const option = document.createElement("option");
