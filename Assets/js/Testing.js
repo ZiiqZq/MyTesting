@@ -857,7 +857,20 @@ function displayTestInformation() {
     }
   }
 
-  elements.product.textContent = testInformation.productName;
+  // FIX: Display series and series_number instead of product name
+  let productDisplay = "";
+  if (selectedProduct.series && selectedProduct.series_number) {
+    productDisplay = `${selectedProduct.series} - ${selectedProduct.series_number}`;
+  } else if (selectedProduct.series) {
+    productDisplay = selectedProduct.series;
+  } else if (selectedProduct.series_number) {
+    productDisplay = selectedProduct.series_number;
+  } else {
+    // Fallback to product name if no series info available
+    productDisplay = selectedProduct.name;
+  }
+
+  elements.product.textContent = productDisplay;
   elements.testType.textContent = testInformation.testTypeName;
   elements.tester.textContent = testInformation.testerName;
   elements.date.textContent = testInformation.testDate;
@@ -867,7 +880,10 @@ function displayTestInformation() {
   elements.serial.textContent = `${testInformation.startingSerial} - ${endSerial}`;
   elements.qty.textContent = testInformation.qty;
 
-  console.log("✅ Test information displayed");
+  console.log(
+    "✅ Test information displayed with series info:",
+    productDisplay
+  );
 }
 
 // ============================================
@@ -924,9 +940,32 @@ function generateTestingTable() {
       col.sub.forEach((subCol) => {
         const subTh = document.createElement("th");
         subTh.className = "sub-header";
-        subTh.textContent = `${subCol.name}${
-          subCol.unit ? " (" + subCol.unit + ")" : ""
-        }`;
+
+        // MODIFIED: Unit ditempatkan setelah LSL dan USL
+        let headerContent = `<div class="font-semibold">${subCol.name}</div>`;
+
+        if (subCol.validationType === "lsl_usl") {
+          if (subCol.lsl || subCol.usl) {
+            headerContent += `<div class="text-xs text-gray-100">`;
+            if (subCol.lsl) headerContent += `LSL: ${subCol.lsl}`;
+            if (subCol.lsl && subCol.usl) headerContent += ` | `;
+            if (subCol.usl) headerContent += `USL: ${subCol.usl}`;
+            // Tambahkan unit setelah LSL/USL jika ada
+            if (subCol.unit) headerContent += ` ${subCol.unit}`;
+            headerContent += `</div>`;
+          } else if (subCol.unit) {
+            // Jika tidak ada LSL/USL tapi ada unit, tampilkan unit saja
+            headerContent += `<div class="text-xs text-gray-100">Unit: ${subCol.unit}</div>`;
+          }
+        } else if (subCol.validationType === "pass_fail") {
+          // Hanya tampilkan nama dan unit (jika ada) untuk pass_fail
+          if (subCol.unit) {
+            headerContent += `<div class="text-xs text-gray-100">Unit: ${subCol.unit}</div>`;
+          }
+          // HAPUS: Expected value dihapus dari header pass/fail
+        }
+
+        subTh.innerHTML = headerContent;
         subTh.setAttribute("data-col-id", `${index}_${subCol.id}`);
         subTh.setAttribute("data-validation", subCol.validationType);
         subTh.setAttribute("data-lsl", subCol.lsl || "");
@@ -937,7 +976,32 @@ function generateTestingTable() {
     } else {
       const th = document.createElement("th");
       th.rowSpan = 2;
-      th.textContent = `${col.name}${col.unit ? " (" + col.unit + ")" : ""}`;
+
+      // MODIFIED: Unit ditempatkan setelah LSL dan USL
+      let headerContent = `<div class="font-semibold">${col.name}</div>`;
+
+      if (col.validationType === "lsl_usl") {
+        if (col.lsl || col.usl) {
+          headerContent += `<div class="text-xs text-gray-100">`;
+          if (col.lsl) headerContent += `LSL: ${col.lsl}`;
+          if (col.lsl && col.usl) headerContent += ` | `;
+          if (col.usl) headerContent += `USL: ${col.usl}`;
+          // Tambahkan unit setelah LSL/USL jika ada
+          if (col.unit) headerContent += ` ${col.unit}`;
+          headerContent += `</div>`;
+        } else if (col.unit) {
+          // Jika tidak ada LSL/USL tapi ada unit, tampilkan unit saja
+          headerContent += `<div class="text-xs text-gray-100">Unit: ${col.unit}</div>`;
+        }
+      } else if (col.validationType === "pass_fail") {
+        // Hanya tampilkan nama dan unit (jika ada) untuk pass_fail
+        if (col.unit) {
+          headerContent += `<div class="text-xs text-gray-100">Unit: ${col.unit}</div>`;
+        }
+        // HAPUS: Expected value dihapus dari header pass/fail
+      }
+
+      th.innerHTML = headerContent;
       th.setAttribute("data-col-id", index);
       th.setAttribute("data-validation", col.validationType);
       th.setAttribute("data-lsl", col.lsl || "");
@@ -1345,7 +1409,6 @@ window.deleteLastRow = deleteLastRow;
 window.closeErrorModal = closeErrorModal;
 window.closeSuccessModal = closeSuccessModal;
 window.closeConfirmModal = closeConfirmModal;
-window.validateNumericInput = validateNumericInput;
 
 console.log(
   "✅ Testing.js loaded successfully - All functions exposed to window"
