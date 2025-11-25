@@ -6,3 +6,5 @@ dist/
 *.tar
 *.tar.gz
 *.7z
+
+out/
