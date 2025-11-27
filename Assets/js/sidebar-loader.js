@@ -1,15 +1,17 @@
-// sidebar-loader.js - SPA Navigation System (FIXED FOR YOUR STRUCTURE)
+// sidebar-loader.js
 
 const SidebarLoader = {
-  // Path adjusted for your Page/Components structure
-  // When loading from Page/Dashboard.html, we need to go to Components/sidebar.html
-  sidebarPath: './Components/sidebar.html',
-  currentActivePage: 'dashboard',
+  sidebarPath: "./Components/sidebar.html",
+  currentActivePage: "dashboard",
   _cachedSidebarHTML: null,
 
-  async load(containerId = 'sidebar-container', activePage = 'dashboard', customPath = null) {
+  async load(
+    containerId = "sidebar-container",
+    activePage = "dashboard",
+    customPath = null
+  ) {
     try {
-      console.log('Loading sidebar...');
+      console.log("Loading sidebar...");
 
       this.currentActivePage = activePage;
       const path = customPath || this.sidebarPath;
@@ -26,13 +28,15 @@ const SidebarLoader = {
         console.log(`Fetching sidebar from: ${path}`);
         const response = await fetch(path);
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status} - Failed to load: ${path}`);
+          throw new Error(
+            `HTTP error! status: ${response.status} - Failed to load: ${path}`
+          );
         }
 
         const html = await response.text();
         this._cachedSidebarHTML = html;
         container.innerHTML = html;
-        console.log('Sidebar HTML loaded and cached');
+        console.log("Sidebar HTML loaded and cached");
       }
 
       // Ensure DOM updates are complete
@@ -44,24 +48,24 @@ const SidebarLoader = {
       // Set active page
       this.setActivePage(activePage);
 
-      console.log('✅ Sidebar loaded successfully');
+      console.log("✅ Sidebar loaded successfully");
     } catch (error) {
-      console.error('❌ Error loading sidebar:', error);
-      console.error('Attempted path:', customPath || this.sidebarPath);
+      console.error("❌ Error loading sidebar:", error);
+      console.error("Attempted path:", customPath || this.sidebarPath);
     }
   },
 
   setupNavigationListeners() {
-    const buttons = document.querySelectorAll('.sidebar-btn');
+    const buttons = document.querySelectorAll(".sidebar-btn");
     console.log(`Setting up listeners for ${buttons.length} buttons`);
-    
+
     buttons.forEach((button, index) => {
-      const targetPage = button.getAttribute('data-page');
+      const targetPage = button.getAttribute("data-page");
       console.log(`  Button ${index + 1}: ${targetPage}`);
-      
-      button.addEventListener('click', (e) => {
+
+      button.addEventListener("click", (e) => {
         e.preventDefault();
-        
+
         if (targetPage) {
           console.log(`🖱️ User clicked: ${targetPage}`);
           this.navigateToPage(targetPage);
@@ -74,15 +78,15 @@ const SidebarLoader = {
     // Map page names to file paths (relative to main.js root directory)
     // Based on your structure: Page/Dashboard.html
     const pageMap = {
-      'dashboard': 'Page/Dashboard.html',
-      'menu': 'Page/Generate.html',
-      'view': 'Page/Testing.html',
-      'about': 'Page/AddProduct.html',
-      'dataentry': 'Page/DataEntry.html'
+      dashboard: "Page/Dashboard.html",
+      menu: "Page/Generate.html",
+      view: "Page/Testing.html",
+      about: "Page/AddProduct.html",
+      dataentry: "Page/DataEntry.html",
     };
 
     const pagePath = pageMap[pageName.toLowerCase()];
-    
+
     if (!pagePath) {
       console.error(`❌ Page not found in pageMap: ${pageName}`);
       return;
@@ -100,16 +104,18 @@ const SidebarLoader = {
 
     // Check if electronAPI is available
     if (!window.electronAPI) {
-      console.error('❌ electronAPI not available');
-      console.error('   Make sure preload.js is loaded and contextBridge is set up');
+      console.error("❌ electronAPI not available");
+      console.error(
+        "   Make sure preload.js is loaded and contextBridge is set up"
+      );
       return;
     }
 
     // Check if navigateTo method exists
     if (!window.electronAPI.navigateTo) {
-      console.error('❌ navigateTo method not found in electronAPI');
-      console.error('   Available methods:', Object.keys(window.electronAPI));
-      console.error('   Update your preload.js to include navigateTo method');
+      console.error("❌ navigateTo method not found in electronAPI");
+      console.error("   Available methods:", Object.keys(window.electronAPI));
+      console.error("   Update your preload.js to include navigateTo method");
       return;
     }
 
@@ -117,55 +123,55 @@ const SidebarLoader = {
     try {
       console.log(`✅ Calling electronAPI.navigateTo('${pagePath}')`);
       window.electronAPI.navigateTo(pagePath);
-      
+
       // Update active state immediately for better UX
       this.setActivePage(pageName);
     } catch (error) {
-      console.error('❌ Error during navigation:', error);
+      console.error("❌ Error during navigation:", error);
     }
   },
 
   setActivePage(activePage) {
-    const buttons = document.querySelectorAll('.sidebar-btn');
+    const buttons = document.querySelectorAll(".sidebar-btn");
     if (!buttons.length) {
-      console.warn('⚠️ No sidebar buttons found');
+      console.warn("No sidebar buttons found");
       return;
     }
 
     let activeFound = false;
-    buttons.forEach(button => {
-      const page = button.getAttribute('data-page');
+    buttons.forEach((button) => {
+      const page = button.getAttribute("data-page");
       if (page === activePage.toLowerCase()) {
-        button.classList.add('active');
+        button.classList.add("active");
         activeFound = true;
-        console.log(`✅ Active state set: ${page}`);
+        console.log(`Active state set: ${page}`);
       } else {
-        button.classList.remove('active');
+        button.classList.remove("active");
       }
     });
 
     if (!activeFound) {
-      console.warn(`⚠️ No button found for page: ${activePage}`);
+      console.warn(`No button found for page: ${activePage}`);
     }
 
     this.currentActivePage = activePage;
   },
 
   async reload(activePage = this.currentActivePage) {
-    const container = document.getElementById('sidebar-container');
+    const container = document.getElementById("sidebar-container");
     if (container) {
-      console.log('🔄 Reloading sidebar...');
+      console.log("🔄 Reloading sidebar...");
       // Reset cache so updated version can be fetched
       this._cachedSidebarHTML = null;
-      await this.load('sidebar-container', activePage);
+      await this.load("sidebar-container", activePage);
     } else {
-      console.warn('⚠️ Sidebar container not found during reload');
+      console.warn("Sidebar container not found during reload");
     }
-  }
+  },
 };
 
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = SidebarLoader;
 }
 
-console.log('✅ Sidebar Loader script loaded');
+console.log("✅ Sidebar Loader script loaded");

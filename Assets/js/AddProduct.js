@@ -1,5 +1,4 @@
-// Assets/js/AddProduct.js - WITH AUTOCOMPLETE
-// Product Management with Test Sequence and Parameters
+// Assets/js/AddProduct.js
 
 // ============================================
 // STATE MANAGEMENT
@@ -8,9 +7,9 @@ let testSequence = [];
 let testParameters = {};
 let allTestTypes = [];
 let sequenceCounter = 0;
-let existingProducts = []; // NEW: untuk autocomplete
-let existingSeries = {}; // NEW: untuk series suggestions
-let pendingNewTestTypes = []; // NEW: untuk menampung test type baru yang belum disimpan
+let existingProducts = [];
+let existingSeries = {};
+let pendingNewTestTypes = [];
 
 // ============================================
 // INITIALIZE
@@ -202,7 +201,6 @@ function renderDropdown(dropdown, matches, onSelect) {
     dropdown.appendChild(item);
   });
 
-  // Add "Add new" option
   const newItem = document.createElement("div");
   // newItem.className = 'px-4 py-3 bg-green-50 hover:bg-green-100 cursor-pointer border-t-2 border-green-300 transition-colors duration-150';
   // newItem.innerHTML = `
@@ -225,7 +223,6 @@ function renderSeriesDropdown(dropdown, matches, onSelect) {
     return;
   }
 
-  // Remove duplicates
   const unique = [];
   const seen = new Set();
   matches.forEach((item) => {
@@ -304,7 +301,6 @@ function populateTestTypeDropdown() {
 // EVENT LISTENERS
 // ============================================
 function setupEventListeners() {
-  // Add autocomplete-input class to inputs
   const productNameInput = document.getElementById("productName");
   const seriesNumberInput = document.getElementById("seriesNumber");
   const seriesNameInput = document.getElementById("seriesName");
@@ -331,7 +327,7 @@ function setupEventListeners() {
   const btnBack = document.getElementById("btnBack");
   if (btnBack) {
     btnBack.addEventListener("click", () => {
-      window.electronAPI.Admin("Back from Add Product");
+      window.electronAPI.AddProduct("Back from Add Product");
     });
   }
 
@@ -388,11 +384,9 @@ async function confirmAddTestType() {
   let testTypeId, testTypeName;
 
   if (newTypeName) {
-    // MODIFIED: Tidak langsung menyimpan ke database, tapi menambahkan sebagai pending
-    testTypeId = "new_" + Date.now(); // ID sementara
+    testTypeId = "new_" + Date.now();
     testTypeName = newTypeName;
 
-    // Simpan di pendingNewTestTypes untuk nanti disimpan saat save product
     pendingNewTestTypes.push({
       tempId: testTypeId,
       name: testTypeName,
@@ -422,7 +416,7 @@ async function confirmAddTestType() {
     testTypeId: testTypeId,
     testTypeName: testTypeName,
     sequenceOrder: testSequence.length + 1,
-    isNew: newTypeName ? true : false, // MODIFIED: Tandai jika ini test type baru
+    isNew: newTypeName ? true : false,
   });
 
   testParameters[testTypeId] = testParameters[testTypeId] || [];
@@ -456,7 +450,6 @@ function renderTestSequence() {
     div.className =
       "bg-green-100 border-l-4 border-[#354F52] rounded-lg p-4 flex items-center justify-between";
 
-    // MODIFIED: Tampilkan badge untuk test type baru
     const newBadge = test.isNew
       ? '<span class="ml-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">New</span>'
       : "";
@@ -523,7 +516,6 @@ function moveTestDown(index) {
 function removeTest(testId) {
   const test = testSequence.find((t) => t.id === testId);
   if (test) {
-    // MODIFIED: Jika test type baru dihapus, hapus juga dari pendingNewTestTypes
     if (test.isNew) {
       pendingNewTestTypes = pendingNewTestTypes.filter(
         (nt) => nt.tempId !== test.testTypeId
@@ -747,7 +739,6 @@ async function saveProduct() {
     return;
   }
 
-  // MODIFIED: Proses test type baru terlebih dahulu
   if (pendingNewTestTypes.length > 0) {
     showLoading(true);
 
@@ -758,15 +749,13 @@ async function saveProduct() {
           newTestType.name
         );
         if (result.success) {
-          // Ganti ID sementara dengan ID yang sebenarnya di testSequence
           testSequence.forEach((test) => {
             if (test.testTypeId === newTestType.tempId) {
               test.testTypeId = result.id;
-              test.isNew = false; // Tandai sudah disimpan
+              test.isNew = false;
             }
           });
 
-          // Ganti ID sementara dengan ID yang sebenarnya di testParameters
           if (testParameters[newTestType.tempId]) {
             testParameters[result.id] = testParameters[newTestType.tempId];
             delete testParameters[newTestType.tempId];
@@ -815,7 +804,9 @@ async function saveProduct() {
         "Product saved successfully! Product ID: " + result.productId
       );
       setTimeout(() => {
-        window.electronAPI.Admin("Back to admin after product creation");
+        window.electronAPI.AddProduct(
+          "Back to AddProduct after product creation"
+        );
       }, 2000);
     } else {
       showErrorModal("Failed to save product: " + result.error);
