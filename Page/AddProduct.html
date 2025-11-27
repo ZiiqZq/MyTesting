@@ -83,8 +83,9 @@
 
       @media (max-width: 1100px) {
         .sm-border {
-          border: 1px solid #d1d5db;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          border-radius: 0.5rem;
         }
       }
     </style>
@@ -114,7 +115,7 @@
 
           <div class="w-full md-layout">
             <!-- Left Panel -->
-            <div class="md-left-panel border custom-border mb-6">
+            <div class="md-left-panel sm-border custom-border mb-6">
               <!-- Info Message Box -->
               <div
                 id="infoMessage"
@@ -383,82 +384,20 @@
                   <input
                     type="text"
                     id="parameterName"
-                    placeholder=" Voltage, Temperature, Resistance"
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2"
-                      >Validation Type *</label
-                    >
-                    <select
-                      id="parameterValidationType"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    >
-                      <option value="lsl_usl">Number (LSL/USL)</option>
-                      <option value="pass_fail">Pass/Fail</option>
-                      <option value="reference">Reference Only</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2"
-                      >Unit</label
-                    >
-                    <input
-                      type="text"
-                      id="parameterUnit"
-                      placeholder=" V, °C, kV, Ω"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div id="lslUslInputs" class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2"
-                      >LSL (Lower Spec Limit)</label
-                    >
-                    <input
-                      type="text"
-                      id="parameterLSL"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                    <p class="text-xs text-gray-500 mt-1">
-                      Minimum acceptable value
-                    </p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2"
-                      >USL (Upper Spec Limit)</label
-                    >
-                    <input
-                      type="text"
-                      id="parameterUSL"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                    <p class="text-xs text-gray-500 mt-1">
-                      Maximum acceptable value
-                    </p>
-                  </div>
-                </div>
-
-                <div id="referenceValueInput" class="hidden">
+                <div>
                   <label class="block text-sm font-medium text-gray-600 mb-2"
-                    >Reference Value/Notes</label
+                    >Parameter *</label
                   >
                   <textarea
                     id="parameterValue"
-                    rows="3"
-                    placeholder=" Check for cracks, Visual inspection required"
+                    rows="4"
+                    placeholder="Enter parameter details or specifications"
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   ></textarea>
-                  <p class="text-xs text-gray-500 mt-1">
-                    For documentation/reference purposes
-                  </p>
                 </div>
               </div>
 

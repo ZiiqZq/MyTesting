@@ -6,6 +6,35 @@
     <title>Testing Page</title>
     <link rel="stylesheet" href="../Assets/css/css.css" />
     <style>
+      .no-spinner::-webkit-outer-spin-button,
+      .no-spinner::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .no-spinner {
+        -moz-appearance: textfield;
+      }
+
+      /* For Firefox */
+      .no-spinner {
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+        appearance: none;
+      }
+
+      #testingTableBody input[type="number"]::-webkit-outer-spin-button,
+      #testingTableBody input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      #testingTableBody input[type="number"] {
+        -moz-appearance: textfield;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
       .test-section {
         background: white;
         border: 1px solid #e5e7eb;
@@ -172,7 +201,7 @@
       }
 
       .test-table td {
-        padding: 0.5rem;
+        padding: 0.25rem;
         border: 1px solid #e5e7eb;
         text-align: center;
       }
@@ -264,7 +293,6 @@
         background-color: #a20021;
         color: white;
         padding: 0.375rem 0.75rem;
-        margin: 0.25rem;
         border-radius: 0.25rem;
         font-weight: 600;
         font-size: 0.75rem;

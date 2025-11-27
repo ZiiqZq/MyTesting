@@ -1084,7 +1084,7 @@ function generateTableRow(columns, rowNumber) {
           const input = document.createElement("input");
           input.type = "number";
           input.step = "any";
-          input.className = "w-full";
+          input.className = "w-full no-spinner"; // TAMBAHKAN CLASS no-spinner DI SINI
           input.setAttribute("data-col-id", `${colIndex}_${subCol.id}`);
           input.setAttribute("data-validation", subCol.validationType);
           input.setAttribute("data-lsl", subCol.lsl || "");
@@ -1120,7 +1120,7 @@ function generateTableRow(columns, rowNumber) {
         const input = document.createElement("input");
         input.type = "number";
         input.step = "any";
-        input.className = "w-full";
+        input.className = "w-full no-spinner"; // TAMBAHKAN CLASS no-spinner DI SINI
         input.setAttribute("data-col-id", colIndex);
         input.setAttribute("data-validation", col.validationType);
         input.setAttribute("data-lsl", col.lsl || "");

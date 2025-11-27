@@ -16,11 +16,10 @@ let pendingNewTestTypes = [];
 // ============================================
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 AddProduct page loaded");
-  await loadExistingProducts(); // NEW
+  await loadExistingProducts();
   await loadTestTypes();
   setupEventListeners();
-  setupValidationTypeChange();
-  setupAutocomplete(); // NEW
+  setupAutocomplete();
 });
 
 // ============================================
@@ -337,29 +336,6 @@ function setupEventListeners() {
   }
 }
 
-function setupValidationTypeChange() {
-  const select = document.getElementById("parameterValidationType");
-  if (select) {
-    select.addEventListener("change", (e) => {
-      const lslUslInputs = document.getElementById("lslUslInputs");
-      const referenceValueInput = document.getElementById(
-        "referenceValueInput"
-      );
-
-      if (e.target.value === "reference") {
-        lslUslInputs.classList.add("hidden");
-        referenceValueInput.classList.remove("hidden");
-      } else if (e.target.value === "pass_fail") {
-        lslUslInputs.classList.add("hidden");
-        referenceValueInput.classList.add("hidden");
-      } else {
-        lslUslInputs.classList.remove("hidden");
-        referenceValueInput.classList.add("hidden");
-      }
-    });
-  }
-}
-
 // ============================================
 // TEST SEQUENCE MANAGEMENT
 // ============================================
@@ -558,16 +534,9 @@ function openAddParameterModal() {
 
   modal.classList.remove("hidden");
 
+  // Reset form fields
   document.getElementById("parameterName").value = "";
-  document.getElementById("parameterValidationType").value = "lsl_usl";
-  document.getElementById("parameterUnit").value = "";
-  document.getElementById("parameterLSL").value = "";
-  document.getElementById("parameterUSL").value = "";
   document.getElementById("parameterValue").value = "";
-
-  document
-    .getElementById("parameterValidationType")
-    .dispatchEvent(new Event("change"));
 }
 
 function closeAddParameterModal() {
@@ -583,28 +552,15 @@ function confirmAddParameter() {
   }
 
   const paramName = document.getElementById("parameterName").value.trim();
-  const validationType = document.getElementById(
-    "parameterValidationType"
-  ).value;
-  const unit = document.getElementById("parameterUnit").value.trim();
-  const lsl = document.getElementById("parameterLSL").value.trim();
-  const usl = document.getElementById("parameterUSL").value.trim();
-  const value = document.getElementById("parameterValue").value.trim();
+  const paramValue = document.getElementById("parameterValue").value.trim();
 
   if (!paramName) {
     showErrorModal("Parameter name is required");
     return;
   }
 
-  if (validationType === "lsl_usl" && !lsl && !usl) {
-    showErrorModal(
-      "At least LSL or USL must be specified for LSL/USL validation"
-    );
-    return;
-  }
-
-  if (validationType === "reference" && !value) {
-    showErrorModal("Reference value is required for reference validation");
+  if (!paramValue) {
+    showErrorModal("Parameter value is required");
     return;
   }
 
@@ -619,13 +575,10 @@ function confirmAddParameter() {
     return;
   }
 
+  // Simpan parameter dengan struktur yang disederhanakan
   testParameters[selectedTest].push({
     name: paramName,
-    validationType: validationType,
-    unit: unit,
-    lsl: lsl,
-    usl: usl,
-    value: value,
+    value: paramValue,
     displayOrder: testParameters[selectedTest].length + 1,
   });
 
@@ -657,23 +610,12 @@ function renderParameters() {
     div.className =
       "bg-cyan-50 border border-blue-300 rounded-lg p-4 flex justify-between items-center";
 
-    let specInfo = "";
-    if (param.validationType === "lsl_usl") {
-      specInfo = `LSL: ${param.lsl || "N/A"} | USL: ${param.usl || "N/A"}`;
-    } else if (param.validationType === "pass_fail") {
-      specInfo = "Pass/Fail";
-    } else {
-      specInfo = "Reference: " + (param.value || "N/A");
-    }
-
     div.innerHTML = `
-            <div>
-                <h4 class="font-bold text-gray-800">${param.name}${
-      param.unit ? " (" + param.unit + ")" : ""
-    }</h4>
-                <p class="text-sm text-gray-600">${specInfo}</p>
+            <div class="flex-1">
+                <h4 class="font-bold text-gray-800">${param.name}</h4>
+                <p class="text-sm text-gray-600 mt-1">${param.value}</p>
             </div>
-            <button onclick="removeParameter('${selectedTest}', ${index})" title="Remove Parameter" class="text-[#800f2f] hover:bg-[#590d22] hover:text-white border-2 border-[#590d22] w-10 h-10 rounded-full cursor-pointer text-xl">
+            <button onclick="removeParameter('${selectedTest}', ${index})" title="Remove Parameter" class="text-[#800f2f] hover:bg-[#590d22] hover:text-white border-2 border-[#590d22] w-10 h-10 rounded-full cursor-pointer text-xl ml-4">
                 -
             </button>
         `;
