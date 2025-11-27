@@ -113,7 +113,7 @@ function setupEventListeners() {
   const btnBack = document.getElementById("btnBack");
   if (btnBack) {
     btnBack.addEventListener("click", () => {
-      window.electronAPI.Admin("Kembali dari Generate");
+      window.electronAPI.Generate("Kembali dari Generate");
     });
   }
 }
@@ -248,12 +248,11 @@ function renderTestTypeSelection() {
   productTestTypes.forEach((testType) => {
     const button = document.createElement("button");
     button.className =
-      "bg-green-50 hover:bg-green-100 border-2 border-green-300 rounded-lg p-4 text-left transition-all duration-200";
+      "bg-green-50 hover:bg-green-100 border-2 border-green-300 rounded-lg p-4 text-left transition-all duration-200 cursor-pointer";
     button.innerHTML = `
             <div class="flex items-center justify-between">
                 <div>
                     <div class="font-bold text-green-800">${testType.name}</div>
-                    <div class="text-xs text-gray-600">Sequence: ${testType.sequence_order}</div>
                 </div>
                 <div class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">
                     ${testType.sequence_order}
@@ -538,7 +537,7 @@ function renderColumns() {
                 <input type="text" value="${col.name}" 
                        onchange="updateCol('${col.id}', 'name', this.value)"
                        placeholder="${
-                         isParent ? "e.g., External Vref" : "e.g., T2, Anode"
+                         isParent ? "Header Column" : "Column Name"
                        }"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
             </div>
@@ -569,7 +568,7 @@ function renderColumns() {
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Unit</label>
                             <input type="text" value="${col.unit}" 
                                    onchange="updateCol('${col.id}', 'unit', this.value)"
-                                   placeholder="e.g., kV, V, °C"
+                                   placeholder="e.g., kV, V"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         </div>
                         <div></div>
@@ -580,7 +579,6 @@ function renderColumns() {
                             <input type="text" value="${col.lsl}" 
                                    oninput="validateNumberInput(this)"
                                    onchange="updateCol('${col.id}', 'lsl', this.value)"
-                                   placeholder="e.g., -2.0"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         </div>
                         <div>
@@ -588,7 +586,6 @@ function renderColumns() {
                             <input type="text" value="${col.usl}" 
                                    oninput="validateNumberInput(this)"
                                    onchange="updateCol('${col.id}', 'usl', this.value)"
-                                   placeholder="e.g., 100"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         </div>
                     </div>
@@ -665,7 +662,7 @@ function updatePreview() {
 
   if (!selectedProduct || !selectedTestType) {
     head.innerHTML =
-      '<tr><td colspan="100" class="px-4 py-8 text-center text-gray-500 font-medium">Preview will appear after selecting product and test type</td></tr>';
+      '<tr><td colspan="100" class="px-4 py-8 text-center text-gray-500 font-medium italic">Preview will appear after selecting product and test type</td></tr>';
     return;
   }
 

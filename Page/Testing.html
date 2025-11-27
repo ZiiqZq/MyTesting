@@ -434,7 +434,6 @@
         }
       }
 
-      /* Navigation warning */
       .navigation-warning {
         position: fixed;
         top: 0;
@@ -452,7 +451,6 @@
         display: block;
       }
 
-      /* New styles for the updated layout */
       .testing-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -531,19 +529,18 @@
 
       .test-info-card h2,
       .test-setup-card h2 {
-        font-size: 1rem; /* DIUBAH: Font size dikurangi */
+        font-size: 1rem;
         font-weight: 600;
         color: #1f2937;
-        margin-bottom: 0.75rem; /* DIUBAH: Margin dikurangi */
+        margin-bottom: 0.75rem;
       }
 
-      /* DIUBAH: Perbaikan layout info display */
       .test-info-card .grid.grid-cols-1.gap-2 {
-        gap: 0.25rem; /* Gap diperkecil */
+        gap: 0.25rem;
       }
 
       .test-info-card .grid.grid-cols-3 {
-        gap: 0.25rem; /* Gap antar kolom diperkecil */
+        gap: 0.25rem;
       }
 
       .action-buttons {
@@ -563,7 +560,7 @@
         }
       }
 
-      /* Remove borders from table inputs */
+      /* borders table inputs */
       .test-table input[type="text"],
       .test-table input[type="number"],
       .test-table select {
@@ -579,7 +576,6 @@
         box-shadow: none;
       }
 
-      /* Optional: Remove background color for valid/invalid states if you want them transparent */
       .test-table input.valid,
       .test-table select.valid {
         background-color: #d1fae5;
@@ -605,16 +601,14 @@
         <main
           class="flex-1 overflow-y-auto p-4 bg-white border border-gray-300 rounded-tl-2xl"
         >
-          <!-- Setup Section (Step 1 & 2) -->
+          <!-- Setup Section -->
           <div id="setupSection">
-            <!-- Header -->
             <div class="pl-2 pt-2 mb-6">
               <h1 class="text-2xl font-bold text-[#2F3E46] mb-1">
                 Testing Setup
               </h1>
             </div>
 
-            <!-- Step 1: Product Selection -->
             <div class="test-section">
               <div class="flex items-center gap-2 mb-4 text-center">
                 <span class="step-badge rounded-full w-6 h-6">1</span>
@@ -643,7 +637,6 @@
               </div>
             </div>
 
-            <!-- Step 2: Test Type Selection -->
             <div id="testTypeSection" class="test-section hidden">
               <div class="flex items-center gap-2 mb-4 text-center">
                 <span class="step-badge rounded-full w-6 h-6">2</span>
@@ -655,11 +648,10 @@
                 id="testTypeList"
                 class="grid grid-cols-1 md:grid-cols-3 gap-3"
               >
-                <!-- Test type buttons will be generated here -->
+                <!-- Test type buttons -->
               </div>
             </div>
 
-            <!-- Test Information Form -->
             <div id="testInfoSection" class="test-section hidden">
               <div class="flex items-center gap-2 mb-4 text-center">
                 <span class="step-badge rounded-full w-6 h-6">3</span>
@@ -778,13 +770,13 @@
             </div>
           </div>
 
-          <!-- Testing Section (Hidden initially) - UPDATED LAYOUT -->
+          <!-- Testing Section -->
           <div id="testingSection" class="hidden">
-            <!-- Main Content Grid -->
+            <!-- Main Content -->
             <div class="testing-layout">
-              <!-- Left Column - Test Info and Test Setup stacked vertically -->
+              <!-- Left Column -->
               <div class="left-panel">
-                <!-- Test Info Card -->
+                <!-- Test Info -->
                 <div class="test-info-card">
                   <h2>Test Info</h2>
 
@@ -880,17 +872,17 @@
                   </div>
                 </div>
 
-                <!-- Test Setup Card -->
+                <!-- Test Setup -->
                 <div class="test-setup-card">
                   <h2>Test Setup</h2>
 
                   <div id="testParametersDisplay" class="space-y-2">
-                    <!-- Parameters will be displayed here -->
+                    <!-- Parameters -->
                   </div>
                 </div>
               </div>
 
-              <!-- Right Column - Test Entry Table -->
+              <!-- Right Column -->
               <div>
                 <div class="table-entry">
                   <!-- <div class="flex justify-between items-center mb-3">
@@ -903,14 +895,13 @@
                   <div class="table-container">
                     <table id="testingTable" class="test-table">
                       <thead id="testingTableHead">
-                        <!-- Table headers will be generated here -->
+                        <!-- Table headers -->
                       </thead>
                       <tbody id="testingTableBody">
-                        <!-- Table rows will be generated here -->
+                        <!-- Table rows -->
                       </tbody>
                     </table>
                   </div>
-                  <!-- Action Buttons -->
                   <div class="action-buttons">
                     <button id="btnCancelTest" class="btn-outline">
                       Cancel
@@ -1033,7 +1024,6 @@
       </div>
     </div>
 
-    <!-- Load Scripts -->
     <script src="../Assets/js/sidebar-loader.js"></script>
     <script>
       function validateNumericInput(input) {

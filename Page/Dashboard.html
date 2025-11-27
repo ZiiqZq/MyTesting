@@ -11,41 +11,19 @@
     <link rel="stylesheet" href="../Assets/css/css.css" />
   </head>
   <body class="bg-gray-100">
-    <!-- Main Container -->
     <div class="h-screen">
       <!-- sidebar -->
       <div id="sidebar-container"></div>
 
-      <!-- Main Content Area -->
+      <!-- Main Content -->
       <div
         class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen"
       >
-        <!-- Content Area -->
         <main
           class="flex-1 overflow-y-auto md:px-4 p-4 bg-white border border-gray-300 rounded-tl-2xl"
         >
           <div class="px-2">
-            <!-- Admin Button -->
-            <!-- <div class="mb-4">
-                        <button type="button" id="Admin" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 shadow-sm transition-all duration-200">
-                            Admin Panel
-                        </button>
-                    </div> -->
-
-            <!-- Button Group -->
-            <!-- <div class="inline-flex rounded-lg shadow-sm mb-8" role="group">
-                        <button type="button" id="First" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
-                            First-test
-                        </button>
-                        <button type="button" id="Final" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
-                            Final-Test
-                        </button>
-                        <button type="button" id="Spec" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 transition-all duration-200">
-                            Spectro-Test
-                        </button>
-                    </div> -->
-
-            <!-- Stats Cards Grid -->
+            <!-- Cards Grid -->
             <div
               class="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
             >
@@ -273,17 +251,13 @@
       </div>
     </div>
 
-    <!-- Load Sidebar First -->
     <script src="../Assets/js/sidebar-loader.js"></script>
     <script>
-      // Initialize sidebar with SPA navigation
       document.addEventListener("DOMContentLoaded", async () => {
         console.log("Dashboard loaded, initializing sidebar...");
 
-        // Load sidebar and set dashboard as active page
         await SidebarLoader.load("sidebar-container", "dashboard");
 
-        // Listen for page changes from main process
         if (window.electronAPI && window.electronAPI.onPageLoaded) {
           window.electronAPI.onPageLoaded((pageName) => {
             console.log("Page changed to:", pageName);
@@ -293,7 +267,6 @@
       });
     </script>
 
-    <!-- Load Dashboard Scripts -->
     <script src="../Assets/js/dashboard.js"></script>
   </body>
 </html>

@@ -6,7 +6,6 @@
     <title>Add Product</title>
     <link rel="stylesheet" href="../Assets/css/css.css" />
     <style>
-      /* Autocomplete dropdown styles */
       .autocomplete-dropdown {
         scrollbar-width: thin;
         scrollbar-color: #cbd5e0 #f7fafc;
@@ -31,9 +30,9 @@
 
       @media (min-width: 1100px) {
         .custom-border {
-          border: 1px solid #d1d5db; /* Tailwind's border-gray-300 */
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tailwind's shadow-md */
-          border-radius: 0.5rem; /* Tailwind's rounded-sm */
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          border-radius: 0.5rem;
         }
 
         .md-layout {
@@ -63,7 +62,6 @@
           overflow-y: auto;
         }
 
-        /* Custom scrollbar for right panel */
         .md-right-panel::-webkit-scrollbar {
           width: 6px;
         }
@@ -93,10 +91,10 @@
   </head>
   <body class="bg-gray-100">
     <div class="h-screen">
-      <!-- Sidebar Container -->
+      <!-- Sidebar -->
       <div id="sidebar-container"></div>
 
-      <!-- Main Content Area -->
+      <!-- Main Content -->
       <div
         class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen"
       >
@@ -111,16 +109,11 @@
                   Add New Product
                 </h1>
               </div>
-              <div class="flex gap-3">
-                <!-- <button id="btnBack" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full cursor-pointer font-semibold transition-colors duration-200">
-                                        ← Back
-                                    </button> -->
-              </div>
             </div>
           </div>
 
           <div class="w-full md-layout">
-            <!-- Left Panel - Product Information -->
+            <!-- Left Panel -->
             <div class="md-left-panel border custom-border mb-6">
               <!-- Info Message Box -->
               <div
@@ -161,7 +154,7 @@
                       autocomplete="off"
                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-200"
                     />
-                    <!-- Dropdown will be inserted here -->
+                    <!-- Dropdown -->
                   </div>
 
                   <div class="mb-4">
@@ -193,7 +186,7 @@
               </div>
             </div>
 
-            <!-- Right Panel - Testing and Parameters -->
+            <!-- Right Panel -->
             <div class="md-right-panel custom-border">
               <!-- Testing Sequence -->
               <div
@@ -235,7 +228,7 @@
                 </div>
               </div>
 
-              <!-- Test Parameters Section -->
+              <!-- Test Parameters -->
               <div
                 id="testParametersSection"
                 class="hidden bg-white rounded-md shadow-sm border border-gray-300 p-6 mb-6 sm-border"
@@ -561,17 +554,13 @@
       </div>
     </div>
 
-    <!-- Load Sidebar -->
     <script src="../Assets/js/sidebar-loader.js"></script>
     <script>
-      // Initialize sidebar with SPA navigation
       document.addEventListener("DOMContentLoaded", async () => {
         console.log("Dashboard loaded, initializing sidebar...");
 
-        // Load sidebar and set dashboard as active page
         await SidebarLoader.load("sidebar-container", "about");
 
-        // Listen for page changes from main process
         if (window.electronAPI && window.electronAPI.onPageLoaded) {
           window.electronAPI.onPageLoaded((pageName) => {
             console.log("Page changed to:", pageName);
@@ -580,7 +569,6 @@
         }
       });
     </script>
-    <!-- Load AddProduct Script -->
     <script src="../Assets/js/AddProduct.js"></script>
   </body>
 </html>
