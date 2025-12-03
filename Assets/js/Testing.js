@@ -1,4 +1,4 @@
-// Assets/js/Testing.js - NO CONFIRMATION MODAL FOR DELETE
+// Assets/js/Testing.js
 
 // ============================================
 // STATE MANAGEMENT
@@ -14,8 +14,83 @@ let testInformation = {};
 let tableRows = [];
 let rowCounter = 0;
 
+// Simpan data untuk dropdown
+let productNames = [];
+let currentSeriesOptions = [];
+
 // ============================================
-// MODAL FUNCTIONS - FIXED SUCCESS MODAL
+// RESET FUNCTIONS
+// ============================================
+
+function resetSeriesAndBelow() {
+    console.log("Resetting series and below...");
+    
+    const seriesContainer = document.getElementById("seriesContainer");
+    const testTypeSection = document.getElementById("testTypeSection");
+    const testInfoSection = document.getElementById("testInfoSection");
+    
+    if (seriesContainer) seriesContainer.classList.add("hidden");
+    if (testTypeSection) testTypeSection.classList.add("hidden");
+    if (testInfoSection) testInfoSection.classList.add("hidden");
+    
+    // Reset state - HANYA reset yang terkait series dan di bawahnya
+    selectedTestType = null;
+    templateData = null;
+    testParameters = [];
+    currentSeriesOptions = [];
+    productSeries = [];
+    
+    // Clear test type buttons
+    const testTypeList = document.getElementById("testTypeList");
+    if (testTypeList) testTypeList.innerHTML = "";
+    
+    // Clear test parameters display
+    const testParametersDisplay = document.getElementById("testParametersDisplay");
+    if (testParametersDisplay) testParametersDisplay.innerHTML = "";
+    
+    // Reset series input
+    const seriesInput = document.getElementById("selectSeries");
+    if (seriesInput) {
+        seriesInput.value = "";
+        seriesInput.classList.remove("invalid");
+        // Clear series dropdown
+        const seriesDropdown = document.getElementById("seriesDropdown");
+        if (seriesDropdown) {
+            seriesDropdown.innerHTML = "";
+            seriesDropdown.classList.remove("active");
+        }
+    }
+    
+    console.log("Series and below have been reset");
+}
+
+function resetTestTypeAndBelow() {
+    console.log("Resetting test type and below...");
+    
+    const testTypeSection = document.getElementById("testTypeSection");
+    const testInfoSection = document.getElementById("testInfoSection");
+    
+    if (testTypeSection) testTypeSection.classList.add("hidden");
+    if (testInfoSection) testInfoSection.classList.add("hidden");
+    
+    // Reset state - TIDAK reset selectedProduct di sini
+    selectedTestType = null;
+    templateData = null;
+    testParameters = [];
+    
+    // Clear test type buttons
+    const testTypeList = document.getElementById("testTypeList");
+    if (testTypeList) testTypeList.innerHTML = "";
+    
+    // Clear test parameters display
+    const testParametersDisplay = document.getElementById("testParametersDisplay");
+    if (testParametersDisplay) testParametersDisplay.innerHTML = "";
+    
+    console.log("Test type and below have been reset");
+}
+
+// ============================================
+// MODAL FUNCTIONS
 // ============================================
 function showErrorModal(message) {
   const errorMessage = document.getElementById("errorMessage");
@@ -45,13 +120,11 @@ function showSuccessModal(message) {
     successMessage.textContent = message;
     modalSuccess.classList.add("active");
 
-    // FIX: Setup success modal close event properly
     setupSuccessModalClose();
   }
 }
 
 function closeSuccessModal(event) {
-  // If event is passed and clicked on modal background, close it
   if (event && event.target.id !== "modalSuccess") {
     return;
   }
@@ -87,7 +160,6 @@ function showConfirmModal(title, message, onConfirm) {
   const btnYes = document.getElementById("btnConfirmYes");
   const btnNo = document.getElementById("btnConfirmNo");
 
-  // Remove old listeners by cloning
   const newBtnYes = btnYes.cloneNode(true);
   const newBtnNo = btnNo.cloneNode(true);
 
@@ -107,18 +179,16 @@ function showConfirmModal(title, message, onConfirm) {
 }
 
 // ============================================
-// SUCCESS MODAL CLOSE SETUP - NEW FUNCTION
+// SUCCESS MODAL CLOSE SETUP
 // ============================================
 function setupSuccessModalClose() {
   const btnCloseSuccess = document.getElementById("btnCloseSuccess");
   const modalSuccess = document.getElementById("modalSuccess");
 
   if (btnCloseSuccess) {
-    // Remove any existing listeners by cloning
     const newBtn = btnCloseSuccess.cloneNode(true);
     btnCloseSuccess.parentNode.replaceChild(newBtn, btnCloseSuccess);
 
-    // Add new click listener
     newBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       const modal = document.getElementById("modalSuccess");
@@ -129,7 +199,6 @@ function setupSuccessModalClose() {
     });
   }
 
-  // Also setup background click to close
   if (modalSuccess) {
     modalSuccess.addEventListener("click", function (e) {
       if (e.target === this) {
@@ -165,11 +234,11 @@ function decrementQty() {
 }
 
 // ============================================
-// DELETE LAST ROW - NEW FUNCTION (NO CONFIRMATION MODAL)
+// DELETE LAST ROW 
 // ============================================
 function deleteLastRow() {
   if (tableRows.length <= 1) {
-    showErrorModal("Cannot delete the last row. Minimum 1 row required.");
+    showErrorModal("Tidak bisa menghapus baris terakhir. Minimal 1 baris diperlukan.");
     return;
   }
 
@@ -178,7 +247,6 @@ function deleteLastRow() {
     lastRow.remove();
     tableRows.pop();
 
-    // Update test information
     testInformation.qty = tableRows.length;
     const displayQty = document.getElementById("displayQty");
     if (displayQty) {
@@ -191,7 +259,7 @@ function deleteLastRow() {
       displaySerial.textContent = `${testInformation.startingSerial} - ${endSerial}`;
     }
 
-    console.log("✅ Last row deleted, total rows:", tableRows.length);
+    console.log("Baris terakhir dihapus, total baris:", tableRows.length);
   }
 }
 
@@ -213,20 +281,18 @@ function updateSerialRangeDisplay() {
     return;
   }
 
-  // Extract numeric part from serial number
   const numericPart = parseInt(startSerial) || 0;
   const endSerial = numericPart + qty - 1;
 
-  display.innerHTML = `<strong>Range:</strong> ${numericPart} - ${endSerial}`;
+  display.innerHTML = `<strong>Range :</strong> ${numericPart} - ${endSerial}`;
 }
 
 // ============================================
 // INITIALIZE
 // ============================================
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🧪 Testing Page Loaded");
+  console.log("Halaman Testing Dimuat");
 
-  // Set default date to today
   const testDateInput = document.getElementById("inputTestDate");
   if (testDateInput) {
     const today = new Date().toISOString().split("T")[0];
@@ -235,23 +301,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadProducts();
   setupEventListeners();
-
-  // Setup modal close events
   setupModalCloseEvents();
 
-  // Prevent navigation during testing
   window.addEventListener("beforeunload", (e) => {
     if (testingInProgress) {
       e.preventDefault();
       e.returnValue =
-        "Testing in progress! All data will be lost if you leave.";
+        "Testing sedang berjalan! Semua data akan hilang jika Anda meninggalkan halaman.";
       return e.returnValue;
     }
   });
 });
 
 // ============================================
-// MODAL CLOSE EVENTS SETUP - NEW FUNCTION
+// MODAL CLOSE EVENTS SETUP 
 // ============================================
 function setupModalCloseEvents() {
   // Error modal
@@ -284,7 +347,6 @@ function setupModalCloseEvents() {
     });
   }
 
-  // Setup success modal close button
   setupSuccessModalClose();
 }
 
@@ -293,122 +355,502 @@ function setupModalCloseEvents() {
 // ============================================
 async function loadProducts() {
   try {
-    console.log("🔄 Loading products...");
+    console.log("Memuat produk...");
     const result = await window.electronAPI.getProducts();
 
     if (result.success) {
       allProducts = result.data;
-      console.log("✅ Products loaded:", allProducts);
+      console.log("Produk berhasil dimuat:", allProducts.length);
       populateProductDropdown();
     } else {
-      console.error("❌ Error loading products:", result.error);
-      showErrorModal("Error loading products: " + result.error);
+      console.error("Gagal memuat produk:", result.error);
+      showErrorModal("Gagal memuat produk: " + result.error);
     }
   } catch (err) {
-    console.error("❌ Error loading products:", err);
-    showErrorModal("Error loading products: " + err.message);
+    console.error("Error memuat produk:", err);
+    showErrorModal("Error memuat produk: " + err.message);
   }
-}
-
-function populateProductDropdown() {
-  const select = document.getElementById("selectProduct");
-  if (!select) {
-    console.error("❌ selectProduct element not found");
-    return;
-  }
-
-  select.innerHTML = '<option value="">-- Select Product --</option>';
-
-  if (!allProducts || allProducts.length === 0) {
-    console.warn("⚠️ No products available");
-    return;
-  }
-
-  // Group products by product_name and get unique names
-  const productNames = [
-    ...new Set(allProducts.map((p) => p.product_name)),
-  ].sort();
-
-  console.log("📦 Available product names:", productNames);
-
-  productNames.forEach((productName) => {
-    const option = document.createElement("option");
-    option.value = productName;
-    option.textContent = productName;
-    select.appendChild(option);
-  });
-
-  console.log(
-    "✅ Product dropdown populated with",
-    productNames.length,
-    "products"
-  );
 }
 
 // ============================================
-// EVENT LISTENERS
+// CUSTOM DROPDOWN FUNCTIONS dengan Reset Otomatis
+// ============================================
+
+function populateProductDropdown() {
+  const input = document.getElementById("selectProduct");
+  const dropdown = document.getElementById("productDropdown");
+  
+  if (!input || !dropdown) {
+    console.error("Elemen selectProduct tidak ditemukan");
+    return;
+  }
+
+  // Clear and reset
+  dropdown.innerHTML = '';
+  input.value = '';
+
+  if (!allProducts || allProducts.length === 0) {
+    console.warn("Tidak ada produk tersedia");
+    input.disabled = true;
+    input.placeholder = "Tidak ada produk tersedia";
+    return;
+  }
+
+  input.disabled = false;
+  input.placeholder = "Ketik atau pilih produk";
+
+  // Get unique product names
+  productNames = [...new Set(allProducts.map((p) => p.product_name))].sort();
+  console.log("Nama produk tersedia:", productNames);
+
+  // Initialize custom dropdown dengan reset otomatis
+  initializeCustomDropdown(
+    'selectProduct',
+    'productDropdown',
+    productNames,
+    function(selectedValue) {
+      console.log("Produk dipilih:", selectedValue);
+      onProductSelect(selectedValue);
+    },
+    true // isProductDropdown
+  );
+
+  console.log("Dropdown produk diisi dengan", productNames.length, "produk");
+}
+
+function populateSeriesDropdown() {
+  const input = document.getElementById("selectSeries");
+  const dropdown = document.getElementById("seriesDropdown");
+  
+  if (!input || !dropdown) {
+    console.error("Elemen selectSeries tidak ditemukan");
+    return;
+  }
+
+  dropdown.innerHTML = '';
+  input.value = '';
+
+  if (!productSeries || productSeries.length === 0) {
+    console.warn("Tidak ada device tersedia");
+    input.disabled = true;
+    input.placeholder = "Tidak ada device tersedia";
+    return;
+  }
+
+  input.disabled = false;
+  input.placeholder = "Ketik atau pilih device";
+
+  // Create display options
+  currentSeriesOptions = [];
+  
+  productSeries.forEach((product) => {
+    let seriesDisplay = "";
+    if (product.series_number && product.series) {
+      seriesDisplay = `${product.series} - ${product.series_number}`;
+    } else if (product.series_number) {
+      seriesDisplay = product.series_number;
+    } else if (product.series) {
+      seriesDisplay = product.series;
+    } else {
+      seriesDisplay = "Tidak Ada Info Seri";
+    }
+
+    currentSeriesOptions.push({
+      display: seriesDisplay,
+      productId: product.id,
+      productData: product
+    });
+  });
+
+  // Get display strings for dropdown
+  const seriesDisplayList = currentSeriesOptions.map(opt => opt.display);
+
+  // Initialize custom dropdown dengan reset otomatis
+  initializeCustomDropdown(
+    'selectSeries',
+    'seriesDropdown',
+    seriesDisplayList,
+    function(selectedValue) {
+      const matchingOption = currentSeriesOptions.find(opt => opt.display === selectedValue);
+      if (matchingOption) {
+        const productData = matchingOption.productData;
+        selectedProduct = {
+          id: productData.id,
+          name: productData.product_name,
+          series_number: productData.series_number,
+          series: productData.series,
+        };
+        
+        console.log("Device dipilih, selectedProduct diupdate:", selectedProduct);
+        
+        // Reset validation state
+        input.classList.remove('invalid');
+        
+        // Load test types untuk produk yang dipilih
+        loadProductTestTypes(productData.id);
+      } else {
+        // Jika tidak cocok, set sebagai invalid
+        input.classList.add('invalid');
+        console.error("Device tidak ditemukan:", selectedValue);
+        // Reset selectedProduct jika device tidak valid
+        selectedProduct = null;
+      }
+    },
+    false // isProductDropdown
+  );
+
+  console.log("Dropdown device diisi dengan", productSeries.length, "opsi");
+}
+
+// ============================================
+// CUSTOM DROPDOWN INITIALIZATION dengan Reset Otomatis - PERBAIKAN
+// ============================================
+function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback, isProductDropdown = false) {
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  
+  if (!input || !dropdown) return;
+
+  let currentFilter = '';
+  let selectedIndex = -1;
+  let lastValidValue = '';
+  let isManualInput = false; // Flag untuk menandai input manual
+
+  // Function to render dropdown items
+  function renderDropdown(filterText = '') {
+    dropdown.innerHTML = '';
+    currentFilter = filterText.toLowerCase();
+    
+    // Filter options based on input
+    const filteredOptions = options.filter(option => 
+      option.toLowerCase().includes(currentFilter)
+    );
+
+    if (filteredOptions.length === 0) {
+      const noResults = document.createElement('div');
+      noResults.className = 'custom-dropdown-no-results';
+      noResults.textContent = 'Tidak ditemukan';
+      dropdown.appendChild(noResults);
+      return;
+    }
+
+    filteredOptions.forEach((option, index) => {
+      const item = document.createElement('div');
+      item.className = 'custom-dropdown-item';
+      item.dataset.value = option;
+      
+      // Highlight matching text
+      if (currentFilter && option.toLowerCase().includes(currentFilter)) {
+        const regex = new RegExp(`(${currentFilter})`, 'gi');
+        item.innerHTML = option.replace(regex, '<strong>$1</strong>');
+      } else {
+        item.textContent = option;
+      }
+      
+      // Add click event
+      item.addEventListener('click', () => {
+        input.value = option;
+        dropdown.classList.remove('active');
+        selectedIndex = -1;
+        lastValidValue = option;
+        isManualInput = false;
+        
+        // Remove highlight from all items
+        dropdown.querySelectorAll('.custom-dropdown-item').forEach(item => {
+          item.classList.remove('highlighted', 'selected');
+        });
+        
+        // Add selected class to clicked item
+        item.classList.add('selected');
+        
+        // Remove invalid class when valid selection is made
+        input.classList.remove('invalid');
+        
+        // Call callback if provided
+        if (onSelectCallback) {
+          onSelectCallback(option);
+        }
+      });
+      
+      dropdown.appendChild(item);
+    });
+  }
+
+  // Show dropdown on focus
+  input.addEventListener('focus', () => {
+    dropdown.classList.add('active');
+    renderDropdown('');
+    selectedIndex = -1;
+  });
+
+  // Filter on input
+  input.addEventListener('input', (e) => {
+    const value = e.target.value.trim();
+    dropdown.classList.add('active');
+    renderDropdown(value);
+    selectedIndex = -1;
+    
+    // Check if input value is valid
+    const isValid = options.includes(value);
+    isManualInput = true;
+    
+    // Jika input berubah dan tidak valid, reset bagian bawah
+    if (value && !isValid) {
+      input.classList.add('invalid');
+      
+      // Reset bagian bawah berdasarkan tipe dropdown
+      if (isProductDropdown) {
+        // Jika ini dropdown product dan input tidak valid, reset series dan ke bawah
+        if (value !== lastValidValue) {
+          resetSeriesAndBelow();
+        }
+      } else {
+        // Jika ini dropdown series dan input tidak valid, reset test type dan ke bawah
+        if (value !== lastValidValue) {
+          resetTestTypeAndBelow();
+          // Reset selectedProduct jika series tidak valid
+          selectedProduct = null;
+        }
+      }
+    } else {
+      input.classList.remove('invalid');
+      lastValidValue = value;
+      // Jika valid dan manual input, jangan reset
+      if (value && isValid) {
+        isManualInput = false;
+      }
+    }
+  });
+
+  // Keyboard navigation
+  input.addEventListener('keydown', (e) => {
+    const items = dropdown.querySelectorAll('.custom-dropdown-item:not(.custom-dropdown-no-results)');
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = (selectedIndex + 1) % items.length;
+      updateHighlightedItem(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+      updateHighlightedItem(items);
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      items[selectedIndex].click();
+    } else if (e.key === 'Enter') {
+      // Check if current value is valid
+      const currentValue = input.value.trim();
+      const isValid = options.includes(currentValue);
+      if (!isValid && currentValue) {
+        input.classList.add('invalid');
+        showErrorModal("Pilihan tidak valid. Silakan pilih dari daftar.");
+        e.preventDefault();
+      } else if (isValid) {
+        // Jika valid, panggil callback
+        if (onSelectCallback) {
+          onSelectCallback(currentValue);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('active');
+      selectedIndex = -1;
+    }
+  });
+
+  // Function to update highlighted item
+  function updateHighlightedItem(items) {
+    items.forEach((item, index) => {
+      item.classList.remove('highlighted');
+      if (index === selectedIndex) {
+        item.classList.add('highlighted');
+        // Scroll into view if needed
+        item.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
+  // PERBAIKAN: Close dropdown when clicking outside - tidak reset jika value valid
+  document.addEventListener('click', (e) => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('active');
+      selectedIndex = -1;
+      
+      // Validate when losing focus
+      const currentValue = input.value.trim();
+      
+      // PERBAIKAN: Jangan reset jika value valid atau sama dengan lastValidValue
+      if (currentValue) {
+        if (!options.includes(currentValue)) {
+          input.classList.add('invalid');
+          
+          // Reset bagian bawah berdasarkan tipe dropdown
+          if (isProductDropdown) {
+            // Jika ini dropdown product dan input tidak valid
+            if (isManualInput && currentValue !== lastValidValue) {
+              resetSeriesAndBelow();
+            }
+          } else {
+            // Jika ini dropdown series dan input tidak valid
+            if (isManualInput && currentValue !== lastValidValue) {
+              resetTestTypeAndBelow();
+              selectedProduct = null;
+            }
+          }
+        } else {
+          // Nilai valid, jangan reset
+          input.classList.remove('invalid');
+        }
+      } else {
+        // Jika input kosong, reset bagian bawah
+        if (isProductDropdown) {
+          resetSeriesAndBelow();
+          selectedProduct = null;
+        } else {
+          resetTestTypeAndBelow();
+          selectedProduct = null;
+        }
+      }
+    }
+  });
+
+  // Initial render
+  renderDropdown('');
+}
+
+// ============================================
+// PRODUCT SELECTION HANDLER dengan Validasi - PERBAIKAN
+// ============================================
+function onProductSelect(productName) {
+  console.log("Produk dipilih:", productName);
+
+  // Reset state terlebih dahulu - HANYA reset yang terkait series dan di bawahnya
+  productSeries = [];
+  currentSeriesOptions = [];
+  
+  // Hanya reset selectedTestType, jangan reset selectedProduct
+  selectedTestType = null;
+  templateData = null;
+  testParameters = [];
+
+  const seriesContainer = document.getElementById("seriesContainer");
+  const testTypeSection = document.getElementById("testTypeSection");
+  const testInfoSection = document.getElementById("testInfoSection");
+
+  if (seriesContainer) seriesContainer.classList.add("hidden");
+  if (testTypeSection) testTypeSection.classList.add("hidden");
+  if (testInfoSection) testInfoSection.classList.add("hidden");
+
+  // Clear series input
+  const seriesInput = document.getElementById("selectSeries");
+  if (seriesInput) {
+    seriesInput.value = '';
+    seriesInput.classList.remove('invalid');
+  }
+
+  // Clear test type buttons
+  const testTypeList = document.getElementById("testTypeList");
+  if (testTypeList) testTypeList.innerHTML = "";
+
+  if (!productName) {
+    console.log("Tidak ada produk yang dipilih");
+    // Reset selectedProduct hanya jika tidak ada produk yang dipilih
+    selectedProduct = null;
+    return;
+  }
+
+  // Validasi bahwa productName ada di daftar
+  if (!productNames.includes(productName)) {
+    const productInput = document.getElementById("selectProduct");
+    if (productInput) {
+      productInput.classList.add('invalid');
+    }
+    showErrorModal("Produk tidak valid. Silakan pilih dari daftar produk.");
+    selectedProduct = null;
+    return;
+  }
+
+  // Filter products by selected product name
+  productSeries = allProducts.filter((p) => p.product_name === productName);
+  console.log("Seri produk yang difilter:", productSeries);
+
+  if (productSeries.length === 0) {
+    console.warn("Tidak ada seri ditemukan untuk produk:", productName);
+    showErrorModal("Tidak ada device ditemukan untuk produk ini.");
+    selectedProduct = null;
+    return;
+  }
+
+  // JANGAN set selectedProduct dari product pertama
+  // Biarkan selectedProduct null sampai user benar-benar memilih device
+
+  populateSeriesDropdown();
+
+  if (seriesContainer) {
+    seriesContainer.classList.remove("hidden");
+    console.log("Kontainer seri ditampilkan");
+  }
+}
+
+// ============================================
+// EVENT LISTENERS - PERBAIKAN
 // ============================================
 function setupEventListeners() {
   try {
-    console.log("🔧 Setting up event listeners...");
+    console.log("Menyiapkan event listeners...");
 
-    // Product selection
-    const selectProduct = document.getElementById("selectProduct");
-    const selectSeries = document.getElementById("selectSeries");
+    // Serial number and quantity listeners
     const inputSerialNumber = document.getElementById("inputSerialNumber");
     const inputQty = document.getElementById("inputQty");
     const btnStartTesting = document.getElementById("btnStartTesting");
     const btnCancelTest = document.getElementById("btnCancelTest");
     const btnSubmitTest = document.getElementById("btnSubmitTest");
     const btnAddRow = document.getElementById("btnAddRow");
-    const btnDeleteLastRow = document.getElementById("btnDeleteLastRow");
-
-    if (selectProduct) {
-      selectProduct.addEventListener("change", onProductChange);
-      console.log("✅ selectProduct listener added");
-    } else {
-      console.error("❌ selectProduct element not found");
-    }
-
-    if (selectSeries) {
-      selectSeries.addEventListener("change", onSeriesChange);
-      console.log("✅ selectSeries listener added");
-    }
 
     if (inputSerialNumber) {
       inputSerialNumber.addEventListener("input", updateSerialRangeDisplay);
-      console.log("✅ inputSerialNumber listener added");
+      console.log("Listener inputSerialNumber ditambahkan");
     }
 
     if (inputQty) {
       inputQty.addEventListener("input", updateSerialRangeDisplay);
-      console.log("✅ inputQty listener added");
+      console.log("Listener inputQty ditambahkan");
     }
 
     if (btnStartTesting) {
       btnStartTesting.addEventListener("click", startTesting);
-      console.log("✅ btnStartTesting listener added");
+      console.log("Listener btnStartTesting ditambahkan");
     }
 
     if (btnCancelTest) {
       btnCancelTest.addEventListener("click", confirmCancelTest);
-      console.log("✅ btnCancelTest listener added");
+      console.log("Listener btnCancelTest ditambahkan");
     }
 
     if (btnSubmitTest) {
       btnSubmitTest.addEventListener("click", submitTestResults);
-      console.log("✅ btnSubmitTest listener added");
+      console.log("Listener btnSubmitTest ditambahkan");
     }
 
     if (btnAddRow) {
       btnAddRow.addEventListener("click", addTableRow);
-      console.log("✅ btnAddRow listener added");
+      console.log("Listener btnAddRow ditambahkan");
     }
 
-    if (btnDeleteLastRow) {
-      btnDeleteLastRow.addEventListener("click", deleteLastRow);
-      console.log("✅ btnDeleteLastRow listener added");
-    }
+    // Input test information listeners - Mencegah reset saat fokus
+    const testInfoInputs = [
+      "inputTesterName", "inputTestDate", "inputPONumber",
+      "inputSerialNumber", "inputQty", "inputMultimeterSN", "inputOscilloscopeSN"
+    ];
+    
+    testInfoInputs.forEach(inputId => {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.addEventListener('focus', () => {
+          console.log(`Input ${inputId} mendapat fokus`);
+          // Jangan reset saat input test information difokuskan
+        });
+      }
+    });
 
     // ESC key to close modals
     document.addEventListener("keydown", (e) => {
@@ -419,129 +861,9 @@ function setupEventListeners() {
       }
     });
 
-    console.log("✅ All event listeners setup completed");
+    console.log("Semua event listeners berhasil disiapkan");
   } catch (error) {
-    console.error("❌ Error setting up event listeners:", error);
-  }
-}
-
-// ============================================
-// PRODUCT SELECTION
-// ============================================
-function onProductChange(e) {
-  const productName = e.target.value;
-  const seriesContainer = document.getElementById("seriesContainer");
-  const testTypeSection = document.getElementById("testTypeSection");
-  const testInfoSection = document.getElementById("testInfoSection");
-
-  console.log("🔄 Product changed to:", productName);
-
-  selectedProduct = null;
-  productSeries = [];
-
-  if (seriesContainer) seriesContainer.classList.add("hidden");
-  if (testTypeSection) testTypeSection.classList.add("hidden");
-  if (testInfoSection) testInfoSection.classList.add("hidden");
-
-  if (!productName) {
-    console.log("ℹ️ No product selected");
-    return;
-  }
-
-  // Filter products by selected product name
-  productSeries = allProducts.filter((p) => p.product_name === productName);
-  console.log("📦 Filtered product series:", productSeries);
-
-  if (productSeries.length === 0) {
-    console.warn("⚠️ No series found for product:", productName);
-    return;
-  }
-
-  populateSeriesDropdown();
-
-  if (seriesContainer) {
-    seriesContainer.classList.remove("hidden");
-    console.log("✅ Series container shown");
-  }
-}
-
-function populateSeriesDropdown() {
-  const select = document.getElementById("selectSeries");
-  if (!select) {
-    console.error("❌ selectSeries element not found");
-    return;
-  }
-
-  select.innerHTML = '<option value="">-- Select Device --</option>';
-
-  productSeries.forEach((product) => {
-    const option = document.createElement("option");
-    option.value = product.id;
-
-    // Create display text for series
-    let seriesDisplay = "";
-    if (product.series_number && product.series) {
-      seriesDisplay = `${product.series} - ${product.series_number}`;
-    } else if (product.series_number) {
-      seriesDisplay = product.series_number;
-    } else if (product.series) {
-      seriesDisplay = product.series;
-    } else {
-      seriesDisplay = "No Series Info";
-    }
-
-    option.textContent = seriesDisplay;
-    option.setAttribute("data-product", JSON.stringify(product));
-    select.appendChild(option);
-  });
-
-  console.log(
-    "✅ Series dropdown populated with",
-    productSeries.length,
-    "options"
-  );
-}
-
-// ============================================
-// SERIES SELECTION
-// ============================================
-async function onSeriesChange(e) {
-  const productId = e.target.value;
-  const testTypeSection = document.getElementById("testTypeSection");
-  const testInfoSection = document.getElementById("testInfoSection");
-
-  console.log("🔄 Series changed to product ID:", productId);
-
-  selectedTestType = null;
-  if (testInfoSection) testInfoSection.classList.add("hidden");
-
-  if (!productId) {
-    selectedProduct = null;
-    if (testTypeSection) testTypeSection.classList.add("hidden");
-    console.log("ℹ️ No series selected");
-    return;
-  }
-
-  const selectedOption = e.target.options[e.target.selectedIndex];
-  if (!selectedOption) {
-    console.error("❌ No option selected");
-    return;
-  }
-
-  try {
-    const productData = JSON.parse(selectedOption.getAttribute("data-product"));
-    selectedProduct = {
-      id: productData.id,
-      name: productData.product_name,
-      series_number: productData.series_number,
-      series: productData.series,
-    };
-
-    console.log("✅ Product selected:", selectedProduct);
-    await loadProductTestTypes(productData.id);
-  } catch (error) {
-    console.error("❌ Error parsing product data:", error);
-    showErrorModal("Error selecting product series");
+    console.error("Error menyiapkan event listeners:", error);
   }
 }
 
@@ -550,20 +872,20 @@ async function onSeriesChange(e) {
 // ============================================
 async function loadProductTestTypes(productId) {
   try {
-    console.log(`🔄 Loading test types for product ${productId}...`);
+    console.log(`Memuat tipe test untuk produk ${productId}...`);
     const result = await window.electronAPI.getProductTestTypes(productId);
 
     if (result.success) {
       const testTypes = result.data;
-      console.log("✅ Test types loaded:", testTypes);
+      console.log("Tipe test berhasil dimuat:", testTypes);
       renderTestTypeButtons(testTypes);
     } else {
-      console.error("❌ Error loading test types:", result.error);
-      showErrorModal("Error loading test types: " + result.error);
+      console.error("Gagal memuat tipe test:", result.error);
+      showErrorModal("Gagal memuat tipe test: " + result.error);
     }
   } catch (err) {
-    console.error("❌ Error loading test types:", err);
-    showErrorModal("Error loading test types: " + err.message);
+    console.error("Error memuat tipe test:", err);
+    showErrorModal("Error memuat tipe test: " + err.message);
   }
 }
 
@@ -572,15 +894,15 @@ function renderTestTypeButtons(testTypes) {
   const testTypeSection = document.getElementById("testTypeSection");
 
   if (!testTypeList || !testTypeSection) {
-    console.error("❌ Test type elements not found");
+    console.error("Elemen tipe test tidak ditemukan");
     return;
   }
 
   if (testTypes.length === 0) {
     testTypeList.innerHTML =
-      '<p class="col-span-3 text-center text-gray-500 text-sm">No test types available for this product</p>';
+      '<p class="col-span-3 text-center text-gray-500 text-sm">Tidak ada tipe test tersedia untuk produk ini</p>';
     testTypeSection.classList.remove("hidden");
-    console.log("ℹ️ No test types available");
+    console.log("Tidak ada tipe test tersedia");
     return;
   }
 
@@ -589,56 +911,81 @@ function renderTestTypeButtons(testTypes) {
   testTypes.forEach((testType) => {
     const button = document.createElement("button");
     button.className = "test-type-btn";
+    button.setAttribute("data-test-type-id", testType.id);
     button.innerHTML = `
             <div class="flex items-center justify-between">
                 <div>
                     <div class="font-semibold text-gray-800">${testType.name}</div>
-                    <div class="text-xs text-gray-600">Sequence: ${testType.sequence_order}</div>
                 </div>
                 <div class="bg-gray-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
                     ${testType.sequence_order}
                 </div>
             </div>
         `;
-    button.onclick = () => selectTestType(testType);
+    button.onclick = (e) => {
+      // Simpan event untuk digunakan nanti
+      if (e) e.stopPropagation();
+      selectTestType(testType);
+    };
     testTypeList.appendChild(button);
   });
 
   testTypeSection.classList.remove("hidden");
-  console.log("✅ Test type buttons rendered:", testTypes.length);
+  console.log("Tombol tipe test dirender:", testTypes.length);
 }
 
 // ============================================
-// TEST TYPE SELECTION
+// TEST TYPE SELECTION - PERBAIKAN
 // ============================================
 async function selectTestType(testType) {
+  // Validasi bahwa selectedProduct tidak null
+  if (!selectedProduct || !selectedProduct.id) {
+    console.error("selectedProduct tidak valid saat memilih test type:", selectedProduct);
+    showErrorModal("Silakan pilih produk dan device terlebih dahulu sebelum memilih tipe test.");
+    return;
+  }
+
   selectedTestType = {
     id: testType.id,
     name: testType.name,
     sequence: testType.sequence_order,
   };
-  console.log("✅ Test type selected:", selectedTestType);
+  console.log("Tipe test dipilih:", selectedTestType);
 
-  // Highlight selected
+  // Update UI untuk menunjukkan test type yang dipilih
   document.querySelectorAll("#testTypeList button").forEach((btn) => {
     btn.classList.remove("selected");
   });
-  event.target.closest("button").classList.add("selected");
-
-  // Load parameters and template
-  await loadTestParameters();
-  await loadTemplate();
-
-  // Show test info section ONLY if template exists
-  const testInfoSection = document.getElementById("testInfoSection");
-  if (testInfoSection) {
-    if (templateData) {
-      testInfoSection.classList.remove("hidden");
-      console.log("✅ Test info section shown");
-    } else {
-      testInfoSection.classList.add("hidden");
-      console.log("ℹ️ Test info section hidden - no template");
+  
+  // Gunakan current event atau fallback
+  const currentEvent = event || window.event;
+  if (currentEvent && currentEvent.target) {
+    currentEvent.target.closest("button").classList.add("selected");
+  } else {
+    // Fallback: jika event tidak tersedia, pilih button pertama
+    const button = document.querySelector(`#testTypeList button[data-test-type-id="${testType.id}"]`);
+    if (button) {
+      button.classList.add("selected");
     }
+  }
+
+  try {
+    await loadTestParameters();
+    await loadTemplate();
+
+    const testInfoSection = document.getElementById("testInfoSection");
+    if (testInfoSection) {
+      if (templateData) {
+        testInfoSection.classList.remove("hidden");
+        console.log("Section info test ditampilkan");
+      } else {
+        testInfoSection.classList.add("hidden");
+        console.log("Section info test disembunyikan - tidak ada template");
+      }
+    }
+  } catch (error) {
+    console.error("Error saat memilih test type:", error);
+    showErrorModal("Terjadi kesalahan saat memuat template. Silakan coba lagi.");
   }
 }
 
@@ -648,7 +995,7 @@ async function selectTestType(testType) {
 async function loadTestParameters() {
   try {
     console.log(
-      `🔄 Loading test parameters for product ${selectedProduct.id}, test ${selectedTestType.id}`
+      `Memuat parameter test untuk produk ${selectedProduct.id}, test ${selectedTestType.id}`
     );
     const result = await window.electronAPI.getTestParameters({
       productId: selectedProduct.id,
@@ -657,51 +1004,83 @@ async function loadTestParameters() {
 
     if (result.success) {
       testParameters = result.data;
-      console.log("✅ Test parameters loaded:", testParameters.length);
+      console.log("Parameter test berhasil dimuat:", testParameters.length);
     } else {
-      console.error("❌ Error loading parameters:", result.error);
+      console.error("Gagal memuat parameter:", result.error);
       testParameters = [];
     }
   } catch (err) {
-    console.error("❌ Error loading parameters:", err);
+    console.error("Error memuat parameter:", err);
     testParameters = [];
   }
 }
 
 // ============================================
-// LOAD TEMPLATE
+// LOAD TEMPLATE - PERBAIKAN
 // ============================================
 async function loadTemplate() {
   try {
-    console.log(`🔄 Loading template for product ${selectedProduct.id}`);
+    console.log(`Memuat template untuk produk:`, selectedProduct);
+
+    // Validasi bahwa selectedProduct tidak null
+    if (!selectedProduct || !selectedProduct.id) {
+      console.error("selectedProduct tidak valid di loadTemplate:", selectedProduct);
+      showErrorModal("Produk tidak valid. Silakan pilih produk dan device kembali.");
+      templateData = null;
+      return;
+    }
+
+    // Validasi bahwa selectedTestType tidak null
+    if (!selectedTestType || !selectedTestType.id) {
+      console.error("selectedTestType tidak valid di loadTemplate:", selectedTestType);
+      showErrorModal("Tipe test tidak valid. Silakan pilih tipe test kembali.");
+      templateData = null;
+      return;
+    }
+
+    console.log(`Memuat template untuk produk ${selectedProduct.id} dan test type ${selectedTestType.id}`);
     const result = await window.electronAPI.getTemplatesByProduct(
       selectedProduct.id
     );
 
     if (result.success) {
       const templates = result.data;
+      console.log("Template tersedia:", templates);
+      
       const template = templates.find(
         (t) => t.test_type_id === selectedTestType.id
       );
 
       if (template) {
         templateData = template;
-        console.log("✅ Template loaded:", templateData.template_name);
+        console.log("Template berhasil dimuat:", templateData.template_name);
+        
+        // Tampilkan test parameters setelah template dimuat
+        displayTestParameters();
       } else {
-        console.warn("⚠️ No template found for this product and test type");
+        console.warn("Tidak ada template ditemukan untuk produk dan tipe test ini");
+        console.log("Product ID:", selectedProduct.id, "Test Type ID:", selectedTestType.id);
+        console.log("Available templates:", templates);
+        
         showErrorModal(
-          "No template found for this product and test type. Please create a template first in Generate page."
+          "Tidak ada template ditemukan untuk produk dan tipe test ini. Silakan buat template terlebih dahulu di halaman Generate."
         );
         templateData = null;
+        
+        // Sembunyikan test info section jika tidak ada template
+        const testInfoSection = document.getElementById("testInfoSection");
+        if (testInfoSection) {
+          testInfoSection.classList.add("hidden");
+        }
       }
     } else {
-      console.error("❌ Error loading template:", result.error);
-      showErrorModal("Error loading template: " + result.error);
+      console.error("Gagal memuat template:", result.error);
+      showErrorModal("Gagal memuat template: " + result.error);
       templateData = null;
     }
   } catch (err) {
-    console.error("❌ Error loading template:", err);
-    showErrorModal("Error loading template: " + err.message);
+    console.error("Error memuat template:", err);
+    showErrorModal("Error memuat template: " + err.message);
     templateData = null;
   }
 }
@@ -712,13 +1091,13 @@ async function loadTemplate() {
 function displayTestParameters() {
   const container = document.getElementById("testParametersDisplay");
   if (!container) {
-    console.error("❌ testParametersDisplay container not found");
+    console.error("Kontainer testParametersDisplay tidak ditemukan");
     return;
   }
 
   if (testParameters.length === 0) {
     container.innerHTML =
-      '<p class="text-[11px] text-gray-600">No predefined test parameters for this test type</p>';
+      '<p class="text-[11px] text-gray-600">Tidak ada parameter test yang ditentukan untuk tipe test ini</p>';
     return;
   }
 
@@ -726,80 +1105,114 @@ function displayTestParameters() {
 
   testParameters.forEach((param) => {
     html += `
-      <div class="grid grid-cols-3 items-center gap-2">
+      <div class="grid grid-cols-3 items-center gap-2 pb-1">
         <div class="text-[10px] text-gray-600 col-span-1">
           ${param.parameter_name} :
         </div>
-        <div class="var-display col-span-2 text-[11px]">
-          ${param.parameter_unit ? `Unit: ${param.parameter_unit}` : ""}
-          ${param.lsl ? ` | LSL: ${param.lsl}` : ""}
-          ${param.usl ? ` | USL: ${param.usl}` : ""}
+        <div class="var-display col-span-2 text-[11px] text-gray-800">
+          ${param.parameter_value}
         </div>
       </div>
     `;
   });
 
-  html += "</div>";
+  html += '</div>';
   container.innerHTML = html;
-  console.log("✅ Test parameters displayed");
+  console.log("Parameter test ditampilkan");
 }
 
 // ============================================
-// START TESTING
+// START TESTING dengan Validasi Ketat - PERBAIKAN
 // ============================================
 function startTesting() {
-  console.log("🔄 Starting testing...");
+  console.log("Memulai testing...");
+
+  // Validasi bahwa selectedProduct sudah ada (device sudah dipilih)
+  if (!selectedProduct || !selectedProduct.id) {
+    showErrorModal("Silakan pilih device terlebih dahulu sebelum memulai testing.");
+    return;
+  }
 
   // Validate inputs
   const testerName = document.getElementById("inputTesterName")?.value.trim();
   const testDate = document.getElementById("inputTestDate")?.value;
   const poNumber = document.getElementById("inputPONumber")?.value.trim();
-  const serialNumber = document
-    .getElementById("inputSerialNumber")
-    ?.value.trim();
+  const serialNumber = document.getElementById("inputSerialNumber")?.value.trim();
   const qtyInput = document.getElementById("inputQty");
   const qty = qtyInput ? parseInt(qtyInput.value) : 0;
+  
+  // Validasi untuk input product dan series yang baru
+  const productInput = document.getElementById("selectProduct");
+  const seriesInput = document.getElementById("selectSeries");
+  
+  if (!productInput || !seriesInput) {
+    showErrorModal("Elemen input tidak ditemukan");
+    return;
+  }
+  
+  const productName = productInput.value.trim();
+  const seriesDisplay = seriesInput.value.trim();
 
-  console.log("📋 Validation data:", {
+  console.log("Data validasi:", {
     testerName,
     testDate,
     poNumber,
     serialNumber,
     qty,
+    productName,
+    seriesDisplay,
+    selectedProduct
   });
 
   if (!testerName) {
-    showErrorModal("Please enter tester name");
+    showErrorModal("Masukkan nama tester");
     return;
   }
 
   if (!testDate) {
-    showErrorModal("Please select test date");
+    showErrorModal("Pilih tanggal test");
     return;
   }
 
   if (!poNumber) {
-    showErrorModal("Please enter PO number");
+    showErrorModal("Masukkan nomor PO");
     return;
   }
 
   if (!serialNumber) {
-    showErrorModal("Please enter starting serial number");
+    showErrorModal("Masukkan nomor serial awal");
     return;
   }
 
   if (!qty || qty < 1) {
-    showErrorModal("Please enter valid quantity");
+    showErrorModal("Masukkan jumlah yang valid");
     return;
   }
 
   if (!templateData) {
-    showErrorModal("No template available. Please create template first.");
+    showErrorModal("Template tidak tersedia. Silakan buat template terlebih dahulu.");
     return;
   }
 
-  if (!selectedProduct || !selectedTestType) {
-    showErrorModal("Please select product and test type first.");
+  // VALIDASI KETAT: Product harus valid
+  if (!productName || !productNames.includes(productName)) {
+    productInput.classList.add('invalid');
+    showErrorModal("Produk tidak valid. Silakan pilih dari daftar produk.");
+    return;
+  }
+
+  // VALIDASI KETAT: Device harus valid
+  const matchingSeries = currentSeriesOptions.find(opt => opt.display === seriesDisplay);
+  
+  if (!matchingSeries) {
+    seriesInput.classList.add('invalid');
+    showErrorModal("Device tidak valid. Silakan pilih dari daftar device.");
+    return;
+  }
+
+  // Pastikan test type sudah dipilih
+  if (!selectedTestType) {
+    showErrorModal("Silakan pilih tipe test terlebih dahulu.");
     return;
   }
 
@@ -807,20 +1220,26 @@ function startTesting() {
   testInformation = {
     testerName,
     testDate,
-    multimeterSN:
-      document.getElementById("inputMultimeterSN")?.value.trim() || "",
-    oscilloscopeSN:
-      document.getElementById("inputOscilloscopeSN")?.value.trim() || "",
+    multimeterSN: document.getElementById("inputMultimeterSN")?.value.trim() || "",
+    oscilloscopeSN: document.getElementById("inputOscilloscopeSN")?.value.trim() || "",
     poNumber,
     startingSerial: parseInt(serialNumber) || 0,
     qty,
-    productName: `${selectedProduct.name} - ${
-      selectedProduct.series_number || selectedProduct.series || ""
+    productName: `${matchingSeries.productData.product_name} - ${
+      matchingSeries.productData.series_number || matchingSeries.productData.series || ""
     }`,
     testTypeName: selectedTestType.name,
   };
 
-  console.log("✅ Test information stored:", testInformation);
+  // Simpan selectedProduct dari matchingSeries
+  selectedProduct = {
+    id: matchingSeries.productData.id,
+    name: matchingSeries.productData.product_name,
+    series_number: matchingSeries.productData.series_number,
+    series: matchingSeries.productData.series,
+  };
+
+  console.log("Informasi test disimpan:", testInformation);
 
   // Switch to testing section
   document.getElementById("setupSection").classList.add("hidden");
@@ -832,7 +1251,7 @@ function startTesting() {
   displayTestParameters();
   generateTestingTable();
 
-  console.log("✅ Testing started successfully");
+  console.log("Testing berhasil dimulai");
 }
 
 // ============================================
@@ -852,7 +1271,7 @@ function displayTestInformation() {
   // Check if all elements exist
   for (const [key, element] of Object.entries(elements)) {
     if (!element) {
-      console.error(`❌ display${key} element not found`);
+      console.error(`Elemen display${key} tidak ditemukan`);
       return;
     }
   }
@@ -881,7 +1300,7 @@ function displayTestInformation() {
   elements.qty.textContent = testInformation.qty;
 
   console.log(
-    "✅ Test information displayed with series info:",
+    "Informasi test ditampilkan dengan info seri:",
     productDisplay
   );
 }
@@ -891,7 +1310,7 @@ function displayTestInformation() {
 // ============================================
 function generateTestingTable() {
   if (!templateData || !templateData.custom_columns) {
-    showErrorModal("Template data is invalid");
+    showErrorModal("Data template tidak valid");
     return;
   }
 
@@ -900,7 +1319,7 @@ function generateTestingTable() {
   const customColumns = allColumns.filter((col) => !col.isReference);
 
   if (customColumns.length === 0) {
-    showErrorModal("No custom columns found in template");
+    showErrorModal("Tidak ada kolom custom ditemukan di template");
     return;
   }
 
@@ -908,7 +1327,7 @@ function generateTestingTable() {
   const tbody = document.getElementById("testingTableBody");
 
   if (!thead || !tbody) {
-    console.error("❌ Table elements not found");
+    console.error("Elemen tabel tidak ditemukan");
     return;
   }
 
@@ -942,11 +1361,11 @@ function generateTestingTable() {
         subTh.className = "sub-header";
 
         // MODIFIED: Unit ditempatkan setelah LSL dan USL
-        let headerContent = `<div class="font-semibold">${subCol.name}</div>`;
+        let headerContent = `<div class="text-[0.6rem] font-semibold">${subCol.name}</div>`;
 
         if (subCol.validationType === "lsl_usl") {
           if (subCol.lsl || subCol.usl) {
-            headerContent += `<div class="text-xs text-gray-100">`;
+            headerContent += `<div class="text-[0.6rem] text-gray-100">`;
             if (subCol.lsl) headerContent += `LSL: ${subCol.lsl}`;
             if (subCol.lsl && subCol.usl) headerContent += ` | `;
             if (subCol.usl) headerContent += `USL: ${subCol.usl}`;
@@ -955,14 +1374,14 @@ function generateTestingTable() {
             headerContent += `</div>`;
           } else if (subCol.unit) {
             // Jika tidak ada LSL/USL tapi ada unit, tampilkan unit saja
-            headerContent += `<div class="text-xs text-gray-100">Unit: ${subCol.unit}</div>`;
+            headerContent += `<div class="text-[0.6rem] text-gray-100">Unit: ${subCol.unit}</div>`;
           }
         } else if (subCol.validationType === "pass_fail") {
           // Hanya tampilkan nama dan unit (jika ada) untuk pass_fail
           if (subCol.unit) {
-            headerContent += `<div class="text-xs text-gray-100">Unit: ${subCol.unit}</div>`;
+            headerContent += `<div class="text-[0.6rem] text-gray-100">Unit: ${subCol.unit}</div>`;
           }
-          // HAPUS: Expected value dihapus dari header pass/fail
+          // Expected value dihapus dari header pass/fail
         }
 
         subTh.innerHTML = headerContent;
@@ -1034,7 +1453,7 @@ function generateTestingTable() {
     tableRows.push(row);
   }
 
-  console.log("✅ Testing table generated with", testInformation.qty, "rows");
+  console.log("Tabel testing dibuat dengan", testInformation.qty, "baris");
 }
 
 function generateTableRow(columns, rowNumber) {
@@ -1063,7 +1482,6 @@ function generateTableRow(columns, rowNumber) {
         const td = document.createElement("td");
 
         if (subCol.validationType === "pass_fail") {
-          // Use dropdown for pass/fail with color update
           const select = document.createElement("select");
           select.className = "w-full";
           select.innerHTML = `
@@ -1084,7 +1502,7 @@ function generateTableRow(columns, rowNumber) {
           const input = document.createElement("input");
           input.type = "number";
           input.step = "any";
-          input.className = "w-full no-spinner"; // TAMBAHKAN CLASS no-spinner DI SINI
+          input.className = "w-full no-spinner";
           input.setAttribute("data-col-id", `${colIndex}_${subCol.id}`);
           input.setAttribute("data-validation", subCol.validationType);
           input.setAttribute("data-lsl", subCol.lsl || "");
@@ -1120,7 +1538,7 @@ function generateTableRow(columns, rowNumber) {
         const input = document.createElement("input");
         input.type = "number";
         input.step = "any";
-        input.className = "w-full no-spinner"; // TAMBAHKAN CLASS no-spinner DI SINI
+        input.className = "w-full no-spinner";
         input.setAttribute("data-col-id", colIndex);
         input.setAttribute("data-validation", col.validationType);
         input.setAttribute("data-lsl", col.lsl || "");
@@ -1181,7 +1599,7 @@ function addTableRow() {
     displaySerial.textContent = `${testInformation.startingSerial} - ${endSerial}`;
   }
 
-  console.log("✅ Row added, total rows:", tableRows.length);
+  console.log("Baris ditambahkan, total baris:", tableRows.length);
 }
 
 // ============================================
@@ -1344,7 +1762,7 @@ async function submitTestResults() {
 
   if (!allComplete) {
     showErrorModal(
-      "Please complete all test entries before submitting. All fields must be filled."
+      "Harap lengkapi semua entri test sebelum submit. Semua field harus diisi."
     );
     return;
   }
@@ -1354,8 +1772,8 @@ async function submitTestResults() {
   const failCount = entries.filter((e) => e.status === "Fail").length;
 
   showConfirmModal(
-    "Submit Test Results",
-    `Ready to submit ${entries.length} test entries:\n\n✓ Pass: ${passCount}\n✗ Fail: ${failCount}\n\nProceed with submission?`,
+    "Submit Hasil Test",
+    `Siap submit ${entries.length} entri test:\n\nLulus: ${passCount}\nGagal: ${failCount}\n\nLanjutkan submit?`,
     async () => {
       try {
         const submitData = {
@@ -1373,14 +1791,14 @@ async function submitTestResults() {
         if (result.success) {
           testingInProgress = false;
           showSuccessModal(
-            `✓ Successfully submitted ${result.insertedCount} test entries!\n\nPass: ${passCount} | Fail: ${failCount}`
+            `Data testing berhasil disubmit!\n\n Pass: ${passCount} | Fail: ${failCount}`
           );
         } else {
-          showErrorModal("Failed to submit: " + result.error);
+          showErrorModal("Gagal submit: " + result.error);
         }
       } catch (err) {
         console.error("Error submitting:", err);
-        showErrorModal("Error submitting: " + err.message);
+        showErrorModal("Error submit: " + err.message);
       }
     }
   );
@@ -1391,8 +1809,8 @@ async function submitTestResults() {
 // ============================================
 function confirmCancelTest() {
   showConfirmModal(
-    "Cancel Testing",
-    "Are you sure you want to cancel? All test data will be lost and cannot be recovered.",
+    "Batalkan Testing",
+    "Yakin ingin membatalkan? Semua data testing akan hilang permanen.",
     () => {
       testingInProgress = false;
       location.reload();
@@ -1411,5 +1829,5 @@ window.closeSuccessModal = closeSuccessModal;
 window.closeConfirmModal = closeConfirmModal;
 
 console.log(
-  "✅ Testing.js loaded successfully - All functions exposed to window"
+  "Testing.js berhasil dimuat - Semua fungsi terekspos ke window"
 );

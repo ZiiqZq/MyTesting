@@ -1,25 +1,4 @@
 // Assets/js/Generate.js
-// Template Builder - Custom Columns WAJIB
-
-// ============================================
-// LOAD SIDEBAR
-// ============================================
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM Content Loaded");
-
-  if (typeof SidebarLoader !== "undefined") {
-    await SidebarLoader.load("sidebar-container", "menu");
-
-    if (window.electronAPI && window.electronAPI.onPageLoaded) {
-      window.electronAPI.onPageLoaded((pageName) => {
-        console.log("Page changed to:", pageName);
-        SidebarLoader.setActivePage(pageName);
-      });
-    }
-  } else {
-    console.error("SidebarLoader not found!");
-  }
-});
 
 // ============================================
 // STATE MANAGEMENT
@@ -345,7 +324,7 @@ function renderReferenceParametersInfo() {
 
 function updateTemplateName() {
   if (selectedProduct && selectedTestType) {
-    const templateName = `${selectedProduct.name} - ${selectedProduct.series_number} (${selectedProduct.series}) - ${selectedTestType.name}`;
+    const templateName = `${selectedProduct.name} - ( ${selectedProduct.series}-${selectedProduct.series_number} ) - ${selectedTestType.name}`;
     const input = document.getElementById("templateName");
     const div = document.getElementById("templateNameDiv");
     if (input) input.value = templateName;
@@ -668,7 +647,7 @@ function updatePreview() {
 
   // UBAH: Sekarang columns WAJIB, jadi jika belum ada, tampilkan pesan yang sesuai
   if (columns.length === 0) {
-    const message = 'Click "Add Column" to start building your test template.';
+    const message = 'Click "+" at Generate Column to start building your table.';
     head.innerHTML = `<tr><td colspan="100" class="px-4 py-8 text-center text-gray-600 font-medium">${message}</td></tr>`;
     return;
   }
@@ -689,7 +668,7 @@ function updatePreview() {
     }
   );
 
-  // Custom columns - warna biru professional
+  // Custom columns
   columns.forEach((col) => {
     if (col.isSplit && col.sub.length > 0) {
       hasSubColumns = true;

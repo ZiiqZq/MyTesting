@@ -45,6 +45,9 @@ const SidebarLoader = {
       // Setup navigation listeners
       this.setupNavigationListeners();
 
+      // Setup dropdown functionality
+      this.setupDropdown();
+
       // Set active page
       this.setActivePage(activePage);
 
@@ -56,7 +59,7 @@ const SidebarLoader = {
   },
 
   setupNavigationListeners() {
-    const buttons = document.querySelectorAll(".sidebar-btn");
+    const buttons = document.querySelectorAll(".sidebar-btn[data-page]");
     console.log(`Setting up listeners for ${buttons.length} buttons`);
 
     buttons.forEach((button, index) => {
@@ -74,15 +77,102 @@ const SidebarLoader = {
     });
   },
 
+setupDropdown() {
+  console.log("Setting up dropdown functionality...");
+
+  const dropdownBtn = document.getElementById("menu-dropdown-btn");
+  const dropdownMenu = document.getElementById("dropdown-menu");
+
+  if (!dropdownBtn || !dropdownMenu) {
+    console.error("Dropdown elements not found:", {
+      dropdownBtn: !!dropdownBtn,
+      dropdownMenu: !!dropdownMenu,
+    });
+    return;
+  }
+
+  console.log("Dropdown elements found, setting up event listeners");
+
+  // Hapus event listener lama untuk menghindari duplikasi
+  dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
+  const newDropdownBtn = document.getElementById("menu-dropdown-btn");
+  
+  newDropdownBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Dropdown button clicked");
+
+    // Toggle dropdown visibility
+    const isShowing = dropdownMenu.classList.contains("show");
+    
+    if (isShowing) {
+      dropdownMenu.classList.remove("show");
+      console.log("Dropdown closed");
+    } else {
+      // Tutup semua dropdown lain yang mungkin terbuka
+      document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        if (menu !== dropdownMenu) menu.classList.remove('show');
+      });
+      
+      dropdownMenu.classList.add("show");
+      console.log("Dropdown opened");
+    }
+  });
+
+  // Close dropdown when clicking outside - IMPROVED
+  document.addEventListener("click", function (e) {
+    if (dropdownMenu.classList.contains("show") && 
+        !dropdownMenu.contains(e.target) && 
+        !newDropdownBtn.contains(e.target)) {
+      dropdownMenu.classList.remove("show");
+      console.log("Dropdown closed by outside click");
+    }
+  });
+
+  // Close dropdown with Escape key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && dropdownMenu.classList.contains("show")) {
+      dropdownMenu.classList.remove("show");
+      newDropdownBtn.focus();
+      console.log("Dropdown closed with Escape key");
+    }
+  });
+
+  // Handle dropdown item clicks
+  const dropdownItems = document.querySelectorAll(".dropdown-item");
+  dropdownItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const targetPage = this.getAttribute("data-page");
+      console.log("Dropdown item clicked:", targetPage);
+
+      // Close dropdown
+      dropdownMenu.classList.remove("show");
+
+      // Navigate to the selected page
+      if (targetPage) {
+        console.log('Calling navigateToPage with:', targetPage);
+        SidebarLoader.navigateToPage(targetPage);
+      }
+    });
+  });
+
+  console.log("Dropdown functionality setup complete");
+},
+
   navigateToPage(pageName) {
     // Map page names to file paths (relative to main.js root directory)
-    // Based on your structure: Page/Dashboard.html
     const pageMap = {
       dashboard: "Page/Dashboard.html",
-      menu: "Page/Generate.html",
-      view: "Page/Testing.html",
-      about: "Page/AddProduct.html",
+      view: "Page/View.html",
+      about: "Page/Testing.html",
       dataentry: "Page/DataEntry.html",
+      generate: "Page/Generate.html",
+      testing: "Page/Testing.html",
+      addproduct: "Page/AddProduct.html",
+      settings: "Page/Settings.html"
     };
 
     const pagePath = pageMap[pageName.toLowerCase()];
@@ -92,10 +182,9 @@ const SidebarLoader = {
       return;
     }
 
-    // 🎯 FIX FLICKERING: Check if already on this page
+    // Check if already on this page
     if (this.currentActivePage.toLowerCase() === pageName.toLowerCase()) {
       console.log(`ℹ️ Already on ${pageName} page, skipping navigation`);
-      // Just update active state (in case it's not highlighted)
       this.setActivePage(pageName);
       return;
     }
@@ -132,23 +221,43 @@ const SidebarLoader = {
   },
 
   setActivePage(activePage) {
-    const buttons = document.querySelectorAll(".sidebar-btn");
-    if (!buttons.length) {
-      console.warn("No sidebar buttons found");
-      return;
+    // Get all sidebar buttons with data-page attribute
+    const buttons = document.querySelectorAll(".sidebar-btn[data-page]");
+    // Get the menu dropdown button (doesn't have data-page)
+    const menuButton = document.querySelector('.menu-dropdown-btn');
+    
+    // Remove active class from all buttons first
+    buttons.forEach(button => {
+      button.classList.remove("active");
+    });
+    
+    if (menuButton) {
+      menuButton.classList.remove("active");
     }
 
     let activeFound = false;
-    buttons.forEach((button) => {
-      const page = button.getAttribute("data-page");
-      if (page === activePage.toLowerCase()) {
-        button.classList.add("active");
+
+    // Define which pages should highlight the menu button
+    const menuPages = ['generate', 'dataentry', 'addproduct', 'testing', 'settings'];
+    
+    // Check if this is a menu page
+    if (menuPages.includes(activePage.toLowerCase())) {
+      if (menuButton) {
+        menuButton.classList.add("active");
         activeFound = true;
-        console.log(`Active state set: ${page}`);
-      } else {
-        button.classList.remove("active");
+        console.log(`Menu button activated for: ${activePage}`);
       }
-    });
+    } else {
+      // Look for regular sidebar buttons
+      buttons.forEach((button) => {
+        const page = button.getAttribute("data-page");
+        if (page === activePage.toLowerCase()) {
+          button.classList.add("active");
+          activeFound = true;
+          console.log(`Active state set: ${page}`);
+        }
+      });
+    }
 
     if (!activeFound) {
       console.warn(`No button found for page: ${activePage}`);

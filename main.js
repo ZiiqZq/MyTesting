@@ -15,6 +15,7 @@ const createWindow = () => {
     autoHideMenuBar: true,
     width: 1200,
     height: 600,
+    icon: path.join(__dirname, 'Assets/img/icon2.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

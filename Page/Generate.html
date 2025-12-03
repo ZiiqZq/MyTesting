@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>ZoTrix</title>
     <link rel="stylesheet" href="../Assets/css/css.css" />
     <style>
       .main-content-wrapper {
@@ -142,7 +142,6 @@
         background-color: #4b5563;
       }
 
-      /* Header styling */
       .page-header {
         background: white;
         border-radius: 0.5rem;
@@ -262,8 +261,8 @@
               <div class="panel mb-4">
                 <div class="flex justify-between items-center mb-4">
                   <div>
-                    <h2 class="text-lg font-bold text-[#2F3E46]">
-                      Custom Test Parameters <span class="text-red-500">*</span>
+                    <h2 class="text-lg font-bold text-[#354F52]">
+                      Custom Columns <span class="text-red-500">*</span>
                     </h2>
                   </div>
                   <button
@@ -288,7 +287,7 @@
           </div>
           <!-- Preview Section -->
           <div class="panel">
-            <h2 class="text-lg font-bold text-[#2F3E46] mb-4">Preview Table</h2>
+            <h2 class="text-lg font-bold text-[#354F52] mb-4">Preview Table</h2>
             <div class="overflow-x-auto bg-gray-50 rounded-lg p-4">
               <table
                 id="previewTable"
@@ -457,17 +456,31 @@
     <script src="../Assets/js/sidebar-loader.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        console.log("Dashboard loaded, initializing sidebar...");
+      console.log("Generate page loaded, initializing sidebar...");
 
-        await SidebarLoader.load("sidebar-container", "menu");
+      // Tunggu sidebar selesai dimuat
+      await SidebarLoader.load("sidebar-container", "generate");
+      
+      console.log("Sidebar loaded, checking dropdown functionality...");
 
-        if (window.electronAPI && window.electronAPI.onPageLoaded) {
-          window.electronAPI.onPageLoaded((pageName) => {
-            console.log("Page changed to:", pageName);
-            SidebarLoader.setActivePage(pageName);
-          });
-        }
-      });
+      // Test dropdown functionality
+      const dropdownBtn = document.getElementById("menu-dropdown-btn");
+      const dropdownMenu = document.getElementById("dropdown-menu");
+      
+      if (dropdownBtn && dropdownMenu) {
+        console.log("Dropdown elements are present in DOM");
+        console.log("Dropdown menu classes:", dropdownMenu.className);
+      } else {
+        console.error("Dropdown elements missing after sidebar load");
+      }
+
+      if (window.electronAPI && window.electronAPI.onPageLoaded) {
+        window.electronAPI.onPageLoaded((pageName) => {
+          console.log("Page changed to:", pageName);
+          SidebarLoader.setActivePage(pageName);
+        });
+      }
+    });
     </script>
 
     <script src="../Assets/js/Generate.js"></script>

@@ -743,7 +743,7 @@ async function saveProduct() {
 
     if (result.success) {
       showSuccessModal(
-        "Product saved successfully! Product ID: " + result.productId
+        "Product saved successfully!"
       );
       setTimeout(() => {
         window.electronAPI.AddProduct(

@@ -70,7 +70,7 @@ function registerDatabaseHandlers(db) {
                 param.unit || null,
                 param.lsl || null,
                 param.usl || null,
-                param.validationType || 'lsl_usl',
+                param.validationType || 'reference',
                 param.displayOrder || 0
               ]
             );
