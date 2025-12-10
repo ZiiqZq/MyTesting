@@ -1,472 +1,522 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZoTrix</title>
-    <link rel="stylesheet" href="../Assets/css/css.css" />
-    <style>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZoTrix</title>
+  <link rel="stylesheet" href="../Assets/css/css.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .main-content-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 1rem;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      width: 100%;
+    }
+
+    @media (min-width: 1100px) {
       .main-content-wrapper {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 1rem;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+
+      .left-panel-desktop {
+        position: sticky;
+        top: 1rem;
+        width: 35%;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .right-panel-desktop {
+        width: 65%;
+        flex-grow: 1;
       }
 
       .panel {
-        background: white;
-        border: 1px solid #e5e7eb;
         border-radius: 0.5rem;
-        padding: 1rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        width: 100%;
       }
+    }
 
-      @media (min-width: 1100px) {
-        .main-content-wrapper {
-          flex-direction: row;
-          align-items: flex-start;
-          gap: 1.5rem;
-        }
+    /* Custom scrollbar */
+    .scroll-container {
+      overflow-y: auto;
+    }
 
-        .left-panel-desktop {
-          position: sticky;
-          top: 1rem;
-          width: 35%;
-          max-height: calc(100vh - 2rem);
-          overflow-y: auto;
-          flex-shrink: 0;
-        }
+    .scroll-container::-webkit-scrollbar {
+      width: 6px;
+    }
 
-        .right-panel-desktop {
-          width: 65%;
-          flex-grow: 1;
-        }
+    .scroll-container::-webkit-scrollbar-track {
+      background: #f7fafc;
+      border-radius: 3px;
+    }
 
-        .panel {
-          border-radius: 0.5rem;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-      }
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 3px;
+    }
 
-      /* Custom scrollbar */
-      .scroll-container {
-        overflow-y: auto;
-      }
+    .scroll-container::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
 
-      .scroll-container::-webkit-scrollbar {
-        width: 6px;
-      }
+    .step-indicator {
+      background-color: #354f52;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
 
-      .scroll-container::-webkit-scrollbar-track {
-        background: #f7fafc;
-        border-radius: 3px;
-      }
+    #previewTable th {
+      transition: background-color 0.15s ease;
+    }
 
-      .scroll-container::-webkit-scrollbar-thumb {
-        background: #cbd5e0;
-        border-radius: 3px;
-      }
+    #previewTable th:hover {
+      background-color: rgba(243, 244, 246, 0.8);
+    }
 
-      .scroll-container::-webkit-scrollbar-thumb:hover {
-        background: #a0aec0;
-      }
-
-      .step-indicator {
-        background-color: #354f52;
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: bold;
-        margin-right: 0.5rem;
-      }
-
-      /* .info-box {
+    /* .info-box {
         border-left-width: 4px;
         border-radius: 0.375rem;
         padding: 1rem;
         margin-bottom: 1.5rem;
       } */
 
-      .info-box-green {
-        background-color: #f0fdf4;
-        border-left-color: #10b981;
-      }
+    .info-box-green {
+      background-color: #f0fdf4;
+      border-left-color: #10b981;
+    }
 
-      .info-box-yellow {
-        background-color: #fefce8;
-        border-left-color: #eab308;
-      }
+    .info-box-yellow {
+      background-color: #fefce8;
+      border-left-color: #eab308;
+    }
 
-      .btn-primary {
-        background-color: #52796f;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        transition: all 0.2s;
-      }
+    .btn-primary {
+      background-color: #52796f;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
 
-      .btn-primary:hover {
-        background-color: #2f3e46;
-      }
+    .btn-primary:hover {
+      background-color: #2f3e46;
+    }
 
-      .btn-success {
-        background-color: #52796f;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        transition: all 0.2s;
-      }
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
 
-      .btn-success:hover {
-        background-color: #354f52;
-      }
+    .btn-success:hover {
+      box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    }
 
-      .btn-gray {
-        background-color: #6b7280;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        transition: all 0.2s;
-      }
+    .btn-gray {
+      background-color: #6b7280;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
 
-      .btn-gray:hover {
-        background-color: #4b5563;
-      }
+    .btn-gray:hover {
+      background-color: #4b5563;
+    }
 
+    .page-header {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (min-width: 1100px) {
       .page-header {
-        background: white;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid #d1d5db;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
+    }
 
-      @media (min-width: 1100px) {
-        .page-header {
-          border-radius: 0.75rem;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100">
-    <!-- Main Container -->
-    <div class="h-screen">
-      <!-- sidebar -->
-      <div id="sidebar-container"></div>
+    /* Custom Dropdown Styles */
+    /* .custom-dropdown {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      z-index: 50;
+    } */
 
-      <!-- Main Content Area -->
-      <div
-        class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen"
-      >
-        <main
-          class="flex-1 overflow-y-auto p-4 bg-white border border-gray-300 rounded-tl-2xl"
-        >
-          <!-- <div class="page-header sticky top-0 z-20"> -->
-          <div class="mb-6">
-            <div class="flex justify-between items-center">
-              <div class="pl-2 pt-2">
-                <h1 class="text-2xl font-bold text-[#2F3E46]">Generate</h1>
-              </div>
+    .custom-dropdown {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      z-index: 9999;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      margin-top: 0.25rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* Pastikan container parent tidak memotong dropdown */
+    .relative {
+      position: relative;
+    }
+
+    .custom-dropdown.active {
+      display: block;
+    }
+
+    .custom-dropdown-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+
+    .custom-dropdown-item:hover,
+    .custom-dropdown-item.highlighted {
+      background-color: #f3f4f6;
+    }
+
+    .custom-dropdown-item.selected {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .custom-dropdown-no-results {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    /* Invalid state */
+    .invalid {
+      border-color: #f87171 !important;
+      background-color: #fef2f2 !important;
+    }
+
+    /* Test type button styles */
+    .test-type-btn {
+      background-color: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: left;
+      transition: all 0.2s;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .test-type-btn:hover {
+      background-color: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .test-type-btn.selected {
+      background-color: #d1fae5;
+      border-color: #10b981;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+  <!-- Main Container -->
+  <div class="h-screen">
+    <!-- sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen">
+      <main class="flex-1 overflow-y-auto p-4 bg-white border border-gray-300 rounded-tl-2xl">
+        <!-- <div class="page-header sticky top-0 z-20"> -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center">
+            <div class="pl-2 pt-2">
+              <h1 class="text-2xl font-bold text-[#2F3E46]">Generate</h1>
             </div>
           </div>
+        </div>
 
-          <!-- Main Content -->
-          <div class="main-content-wrapper">
-            <!-- Left Panel -->
-            <div class="left-panel-desktop scroll-container">
-              <!-- Template Info Form -->
-              <div class="panel mb-4">
-                <div class="mb-6">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <span class="step-indicator">1</span>
-                    Select Product Name *
-                  </label>
-                  <select
-                    id="selectProduct"
+        <!-- Main Content -->
+        <div class="main-content-wrapper">
+          <!-- Left Panel -->
+          <div class="left-panel-desktop scroll-container">
+            <!-- Template Info Form -->
+            <div class="panel mb-4">
+
+              <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Product Name *
+                </label>
+                <div class="relative">
+                  <input type="text" id="selectProduct"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  >
-                    <option value="">-- Select Product Name --</option>
-                  </select>
-                </div>
-
-                <div id="seriesSelectionDiv" class="hidden mb-6">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <span class="step-indicator">2</span>
-                    Select Device *
-                  </label>
-                  <select
-                    id="selectSeries"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  >
-                    <option value="">-- Select Devices --</option>
-                  </select>
-                </div>
-
-                <div id="testTypeSelectionDiv" class="hidden mb-6">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <span class="step-indicator">3</span>
-                    Select Test Type *
-                  </label>
-                  <div class="grid grid-cols-1 gap-3" id="testTypeList">
-                    <!-- Test types -->
+                    placeholder="Type or select a Product." autocomplete="off">
+                  <div id="productDropdown"
+                    class="custom-dropdown hidden absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto">
                   </div>
-                </div>
-
-                <!-- Template Name Display -->
-                <div id="templateNameDiv" class="hidden">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <span class="step-indicator">4</span>
-                    Template Name
-                  </label>
-                  <input
-                    type="text"
-                    id="templateName"
-                    readonly
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
-                  />
                 </div>
               </div>
 
-              <!-- Default Columns Info -->
-              <!-- <div class="info-box info-box-green">
+              <div id="seriesSelectionDiv" class="hidden mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Device *
+                </label>
+                <div class="relative">
+                  <input type="text" id="selectSeries"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    placeholder="Type or select Device." autocomplete="off">
+                  <div id="seriesDropdown"
+                    class="custom-dropdown hidden absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Test Type Selection -->
+              <div id="testTypeSelectionDiv" class="hidden mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Test Type *
+                </label>
+                <div id="testTypeList" class="grid grid-cols-1 gap-3"></div>
+              </div>
+
+              <!-- Template Name -->
+              <div id="templateNameDiv" class="hidden mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Template Name *
+                </label>
+                <input type="text" id="templateName"
+                  class="text-[1rem] text-gray-500 bg-gray-100 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  readonly>
+              </div>
+            </div>
+
+            <!-- Default Columns Info -->
+            <!-- <div class="info-box info-box-green">
                             <h3 class="font-bold text-green-800 mb-2">• Default Columns (Auto-generated):</h3>
                             <p class="text-green-700 text-sm">
                                 No | Nama Operator | Test Date | PO Number | Serial Number
                             </p>
                         </div> -->
 
-              <!-- End Columns Info -->
-              <!-- <div class="info-box info-box-yellow">
+            <!-- End Columns Info -->
+            <!-- <div class="info-box info-box-yellow">
                             <h3 class="font-bold text-yellow-800 mb-2">• End Columns (Auto-generated):</h3>
                             <p class="text-yellow-700 text-sm">
                                 Status | Remarks 
                             </p>
                         </div> -->
-            </div>
+          </div>
 
-            <!-- Right Panel -->
-            <div class="right-panel-desktop scroll-container">
-              <!-- Column Builder -->
-              <div class="panel mb-4">
-                <div class="flex justify-between items-center mb-4">
-                  <div>
-                    <h2 class="text-lg font-bold text-[#354F52]">
-                      Custom Columns <span class="text-red-500">*</span>
-                    </h2>
-                  </div>
-                  <button
-                    id="btnAddColumn"
-                    title="Add Column"
-                    class="cursor-pointer bg-[#52796F] text-white w-12 h-12 rounded-full font-semibold transition duration-200 hover:bg-[#2F3E46]"
-                  >
-                    +
-                  </button>
+          <!-- Right Panel -->
+          <div class="right-panel-desktop scroll-container">
+            <!-- Column Builder -->
+            <div class="panel mb-4">
+              <div class="flex justify-between items-center mb-4">
+                <div>
+                  <h2 class="text-lg font-bold text-[#354F52]">
+                    Custom Columns <span class="text-red-500">*</span>
+                  </h2>
                 </div>
+                <button id="btnAddColumn" title="Add Column"
+                  class="cursor-pointer bg-[#52796F] text-white w-12 h-12 rounded-full font-semibold transition duration-200 hover:bg-[#2F3E46]">
+                  +
+                </button>
+              </div>
 
-                <div id="columnList" class="space-y-4"></div>
+              <div id="columnList" class="space-y-4"></div>
 
-                <div
-                  id="emptyState"
-                  class="text-center py-12 border-2 border-[#84A98C] border-dashed rounded-lg"
-                >
-                  <h1 class="text-gray-400">Add Column</h1>
-                </div>
+              <div id="emptyState" class="text-center py-12 border-2 border-[#84A98C] border-dashed rounded-lg">
+                <h1 class="text-gray-400">Add Column</h1>
               </div>
             </div>
           </div>
-          <!-- Preview Section -->
-          <div class="panel">
-            <h2 class="text-lg font-bold text-[#354F52] mb-4">Preview Table</h2>
-            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4">
-              <table
-                id="previewTable"
-                class="w-full border-collapse rounded-xl bg-white"
-              >
-                <thead id="previewHead" class="rounded-xl">
+        </div>
+
+        <!-- Preview Section -->
+        <div class="panel">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-[#354F52]">Preview Table</h2>
+            </div>
+            <div class="text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+              <span id="columnCount" class="font-semibold text-gray-800">0</span> columns configured
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table id="previewTable" class="w-full">
+                <thead id="previewHead" class="bg-gray-50">
                   <tr>
-                    <td
-                      colspan="100"
-                      class="px-4 py-8 text-center text-gray-400 italic"
-                    >
-                      Preview Table
+                    <td colspan="100" class="px-6 py-12 text-center">
+                      <div class="flex flex-col items-center justify-center text-gray-400">
+                        <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                          </svg>
+                        </div>
+                        <p class="font-medium text-gray-500">Preview will appear after selecting product and test type
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td
-                      colspan="100"
-                      class="px-4 py-3 text-center text-gray-500 text-sm"
-                    >
-                      Sample data row...
-                    </td>
-                  </tr>
-                </tbody>
               </table>
             </div>
-            <div class="pt-4 mx-auto flex justify-end">
-              <button id="btnSave" class="cursor-pointer btn-success">
-                Save Template
+
+            <!-- Table footer -->
+            <div
+              class="bg-gray-50 px-6 py-3 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
+              <div class="flex items-center justify-center mx-auto">
+                <div class="font-medium text-gray-700">Template Preview</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 flex justify-end">
+            <button id="btnSave"
+              class="cursor-pointer btn-success px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+              Save Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <!-- <div id="modalDeleteConfirm"
+          class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-red-100 p-3 rounded-full mr-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800">
+                Konfirmasi Hapus
+              </h3>
+            </div>
+
+            <p class="text-gray-600 mb-6" id="deleteMessage">
+              Yakin ingin menghapus column ini?
+            </p>
+
+            <div class="flex justify-end gap-3">
+              <button onclick="closeDeleteModal()" class="btn-gray cursor-pointer">
+                Batal
+              </button>
+              <button onclick="confirmDelete()"
+                class="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200">
+                Hapus
               </button>
             </div>
           </div>
+        </div> -->
 
-          <!-- Delete Confirmation Modal -->
-          <div
-            id="modalDeleteConfirm"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-              <div class="flex items-center mb-4">
-                <div class="bg-red-100 p-3 rounded-full mr-4">
-                  <svg
-                    class="w-8 h-8 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800">
-                  Konfirmasi Hapus
-                </h3>
+        <!-- Error Modal -->
+        <div id="modalError" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-red-100 p-3 rounded-full mr-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
+              <h3 class="text-xl font-bold text-gray-800" id="errorTitle">
+                Error
+              </h3>
+            </div>
 
-              <p class="text-gray-600 mb-6" id="deleteMessage">
-                Yakin ingin menghapus column ini?
-              </p>
+            <p class="text-gray-600 mb-6" id="errorMessage"></p>
 
-              <div class="flex justify-end gap-3">
-                <button
-                  onclick="closeDeleteModal()"
-                  class="btn-gray cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  onclick="confirmDelete()"
-                  class="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
-                >
-                  Hapus
-                </button>
-              </div>
+            <div class="flex justify-end">
+              <button onclick="closeErrorModal()"
+                class="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200">
+                Close
+              </button>
             </div>
           </div>
+        </div>
 
-          <!-- Error Modal -->
-          <div
-            id="modalError"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-              <div class="flex items-center mb-4">
-                <div class="bg-red-100 p-3 rounded-full mr-4">
-                  <svg
-                    class="w-8 h-8 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800" id="errorTitle">
-                  Error
-                </h3>
+        <!-- Success Modal -->
+        <div id="modalSuccess"
+          class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 p-3 rounded-full mr-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
+              <h3 class="text-xl font-bold text-gray-800" id="successTitle">
+                Sukses
+              </h3>
+            </div>
 
-              <p class="text-gray-600 mb-6" id="errorMessage"></p>
+            <p class="text-gray-600 mb-6" id="successMessage"></p>
 
-              <div class="flex justify-end">
-                <button
-                  onclick="closeErrorModal()"
-                  class="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
-                >
-                  Tutup
-                </button>
-              </div>
+            <div class="flex justify-end">
+              <button onclick="closeSuccessModal()" class="cursor-pointer btn-success">
+                Tutup
+              </button>
             </div>
           </div>
-
-          <!-- Success Modal -->
-          <div
-            id="modalSuccess"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-              <div class="flex items-center mb-4">
-                <div class="bg-green-100 p-3 rounded-full mr-4">
-                  <svg
-                    class="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                  </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800" id="successTitle">
-                  Sukses
-                </h3>
-              </div>
-
-              <p class="text-gray-600 mb-6" id="successMessage"></p>
-
-              <div class="flex justify-end">
-                <button
-                  onclick="closeSuccessModal()"
-                  class="cursor-pointer btn-success"
-                >
-                  Tutup
-                </button>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
+  </div>
 
-    <script src="../Assets/js/sidebar-loader.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async () => {
+  <script src="../Assets/js/sidebar-loader.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
       console.log("Generate page loaded, initializing sidebar...");
 
       // Tunggu sidebar selesai dimuat
       await SidebarLoader.load("sidebar-container", "generate");
-      
+
       console.log("Sidebar loaded, checking dropdown functionality...");
 
       // Test dropdown functionality
       const dropdownBtn = document.getElementById("menu-dropdown-btn");
       const dropdownMenu = document.getElementById("dropdown-menu");
-      
+
       if (dropdownBtn && dropdownMenu) {
         console.log("Dropdown elements are present in DOM");
         console.log("Dropdown menu classes:", dropdownMenu.className);
@@ -481,8 +531,9 @@
         });
       }
     });
-    </script>
+  </script>
 
-    <script src="../Assets/js/Generate.js"></script>
-  </body>
+  <script src="../Assets/js/Generate.js"></script>
+</body>
+
 </html>

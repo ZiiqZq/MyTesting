@@ -1,1164 +1,1440 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZoTrix</title>
-    <link rel="stylesheet" href="../Assets/css/css.css" />
-    <style>
-      .no-spinner::-webkit-outer-spin-button,
-      .no-spinner::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZoTrix</title>
+  <link rel="stylesheet" href="../Assets/css/css.css" />
+  <style>
+    /* ============================================
+   TESTING PAGE STYLES
+============================================ */
+
+    .no-spinner::-webkit-outer-spin-button,
+    .no-spinner::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .no-spinner {
+      -moz-appearance: textfield;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    #testingTableBody input[type="number"]::-webkit-outer-spin-button,
+    #testingTableBody input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    #testingTableBody input[type="number"] {
+      -moz-appearance: textfield;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* ===== FORM STYLES ===== */
+    .input-field {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #374151;
+      background-color: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-weight: normal;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .test-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-entry {
+      border: #354f52;
+      border-radius: 0.5rem;
+      overflow-y: auto;
+    }
+
+    /* ===== CUSTOM DROPDOWN ===== */
+    .custom-dropdown-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-dropdown-input {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      padding-right: 2.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #374151;
+      background-color: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-weight: normal !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1rem;
+      cursor: pointer;
+    }
+
+    .custom-dropdown-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .custom-dropdown-input:hover {
+      border-color: #9ca3af;
+    }
+
+    .custom-dropdown-input:disabled {
+      background-color: #f3f4f6;
+      cursor: not-allowed;
+      color: #9ca3af;
+    }
+
+    .custom-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: white;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 0.25rem;
+      font-weight: normal !important;
+    }
+
+    .custom-dropdown-menu.active {
+      display: block;
+    }
+
+    .custom-dropdown-item {
+      padding: 0.5rem 1rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: #374151;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-weight: normal !important;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .custom-dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .custom-dropdown-item:hover {
+      background-color: #f3f4f6;
+    }
+
+    .custom-dropdown-item.selected {
+      background-color: #e3f2fd;
+      color: #3498db;
+    }
+
+    .custom-dropdown-item.highlighted {
+      background-color: #e3f2fd;
+      color: #3498db;
+    }
+
+    .custom-dropdown-item strong {
+      font-weight: 600 !important;
+      color: #1f2937;
+    }
+
+    .custom-dropdown-no-results {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: #9ca3af;
+      font-style: italic;
+      background-color: #f9fafb;
+    }
+
+    /* ===== BUTTON STYLES ===== */
+    .btn-primary {
+      background-color: #6366f1;
+      color: white;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary:hover {
+      background-color: #4f46e5;
+    }
+
+    .btn-success {
+      background-color: #52796f;
+      color: white;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-success:hover {
+      background-color: #354f52;
+    }
+
+    .btn-danger {
+      background-color: #dc2626;
+      color: white;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-gray {
+      background-color: #6b7280;
+      color: white;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .btn-gray:hover {
+      background-color: #4b5563;
+    }
+
+    .btn-outline {
+      background-color: white;
+      color: #374151;
+      padding: 0.625rem 1.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+      font-size: 0.875rem;
+      position: sticky;
+    }
+
+    .btn-outline:hover {
+      background-color: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    /* ===== BADGES & DISPLAYS ===== */
+    .step-badge {
+      background-color: #354f52;
+      color: white;
+    }
+
+    .info-display {
+      background-color: #f9fafb;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    .var-display {
+      background-color: whitesmoke;
+      border-radius: 0.375rem;
+      padding: 0.125rem 0.25rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* ===== TABLE STYLES ===== */
+    .test-table {
+      width: 100%;
+      font-size: 0.875rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
+    }
+
+    th {
+      white-space: normal !important;
+      word-break: break-word !important;
+      max-width: 200px;
+      min-width: 80px;
+    }
+
+    /* Header Utama */
+    .test-table th {
+      background: linear-gradient(to bottom, #4a6fa5, #3a5985);
+      color: #ffffff;
+      padding: 10px 6px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 11px;
+      position: sticky;
+      border: 1px solid #2c3e50;
+      border-top: 1px solid #3a5985;
+      border-bottom: 2px solid #2c3e50;
+      top: 0;
+      z-index: 10;
+      height: 40px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      cursor: default;
+      user-select: none;
+    }
+
+    .test-table th:hover {
+      background: linear-gradient(to bottom, #5a7fb5, #4a6995);
+    }
+
+    /* Sub-header */
+    .test-table th.sub-header {
+      background: linear-gradient(to bottom, #6d8cc0, #5a7fb5);
+      border: 1px solid #3a5985;
+      border-bottom: 2px solid #2c3e50;
+      position: sticky;
+      font-size: 10px;
+      top: 40px;
+      z-index: 10;
+      height: 30px;
+      text-transform: none;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Table Container */
+    .table-container {
+      overflow-x: auto;
+      overflow-y: auto;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      width: 100%;
+      max-height: calc(100vh - 150px);
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background: white;
+      cursor: default;
+    }
+
+    .test-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    /* Table Rows */
+    .test-table tbody tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .test-table tbody tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Table Cells */
+    .test-table td {
+      padding: 0 !important;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      background-color: white;
+      transition: all 0.15s ease;
+      height: 32px;
+      vertical-align: middle;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .test-table td.selectable {
+      cursor: pointer;
+    }
+
+    /* Input Fields in Table */
+    .test-table input[type="text"],
+    .test-table input[type="number"],
+    .test-table select {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 32px !important;
+      padding: 4px 8px !important;
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      font-size: 11px;
+      text-align: center;
+      background: transparent;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      font-family: inherit;
+      display: block;
+    }
+
+    .test-table input[type="text"],
+    .test-table input[type="number"] {
+      cursor: text !important;
+    }
+
+    .test-table select {
+      cursor: pointer !important;
+    }
+
+    .test-table input[type="text"]:focus,
+    .test-table input[type="number"]:focus,
+    .test-table select:focus {
+      outline: 2px solid #3b82f6 !important;
+      outline-offset: -2px !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+      background-color: white !important;
+      z-index: 10 !important;
+      position: relative !important;
+    }
+
+    .test-table input.active-input,
+    .test-table select.active-input {
+      background-color: #f0f9ff !important;
+      border: 2px solid #3b82f6 !important;
+    }
+
+    /* Cell Focus State */
+    .test-table td:focus-within {
+      outline: 2px solid #3b82f6;
+      outline-offset: -2px;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* Select Dropdown in Table */
+    .test-table select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 4px center;
+      background-size: 12px;
+      padding-right: 20px;
+      cursor: pointer;
+    }
+
+    /* ===== SELECTED CELLS ===== */
+    .test-table td.selected {
+      background-color: rgba(59, 130, 246, 0.15) !important;
+      border-color: #3b82f6 !important;
+      position: relative;
+    }
+
+    .test-table td.selected::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 2px solid #3b82f6;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .test-table td.selected>input,
+    .test-table td.selected>select {
+      background-color: rgba(59, 130, 246, 0.05) !important;
+    }
+
+    .test-table th.selected {
+      background: linear-gradient(to bottom, #6366f1, #4f46e5) !important;
+      border-color: #4f46e5 !important;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+
+    /* ===== SELECTION RECTANGLE ===== */
+    .selection-rectangle {
+      position: absolute;
+      border: 2px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+    }
+
+    .selection-rectangle.active {
+      display: block;
+    }
+
+    /* ===== STATUS BADGES ===== */
+    .status-pass {
+      background: linear-gradient(to bottom, #10b981, #059669);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 11px;
+      border: 1px solid #047857;
+      display: inline-block;
+      min-width: 60px;
+    }
+
+    .status-fail {
+      background: linear-gradient(to bottom, #ef4444, #dc2626);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 11px;
+      border: 1px solid #b91c1c;
+      display: inline-block;
+      min-width: 60px;
+    }
+
+    /* ===== INPUT VALIDATION STATES ===== */
+    .test-table input.valid,
+    .test-table select.valid {
+      background-color: #d1fae5 !important;
+      color: #047857;
+    }
+
+    .test-table input.invalid,
+    .test-table select.invalid {
+      background-color: #fee2e2 !important;
+      color: #dc2626;
+    }
+
+    /* ===== TABLE TOOLBAR ===== */
+    .table-toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 8px;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .toolbar-info {
+      margin-left: auto;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .selection-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .toolbar-btn {
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+    }
+
+    .toolbar-btn:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .toolbar-btn.primary {
+      background: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    .toolbar-btn.primary:hover {
+      background: #2563eb;
+    }
+
+    .toolbar-btn.active {
+      background: #1d4ed8;
+      color: white;
+      border-color: #1e40af;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .toolbar-btn.danger {
+      background: #ef4444;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    .toolbar-btn.danger:hover {
+      background: #dc2626;
+    }
+
+    /* Keyboard Shortcut Hint */
+    .keyboard-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 11px;
+      color: #475569;
+    }
+
+    .kbd-key {
+      background: white;
+      border: 1px solid #94a3b8;
+      border-radius: 2px;
+      padding: 1px 4px;
+      font-family: 'Segoe UI', monospace;
+      font-weight: bold;
+      font-size: 10px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Table Row Number Styling */
+    .test-table td:first-child {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+      border-right: 2px solid #e2e8f0;
+      cursor: default;
+    }
+
+    .test-table td:nth-child(2) {
+      font-weight: 600;
+      color: #1e293b;
+      background-color: #f8fafc;
+      border-right: 2px solid #e2e8f0;
+      cursor: default;
+    }
+
+    /* Remarks Column */
+    .test-table td:last-child input {
+      font-size: 11px;
+      text-align: left;
+      padding: 4px 8px;
+    }
+
+    /* ===== COLUMN INFO PANEL ===== */
+    /* .column-info-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-top: 1rem;
+    }
+
+    .column-info-card h2 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .column-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.375rem 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.75rem;
+    } */
+
+    .column-info-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .column-info-card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    }
+
+    .column-info-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .column-info-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #495057;
+      min-width: 80px;
+      margin-right: 8px;
+    }
+
+    .column-info-value {
+      font-size: 12px;
+      color: #212529;
+      flex: 1;
+      word-break: break-word !important;
+    }
+
+    .column-info-item:last-child {
+      border-bottom: none;
+    }
+
+    .column-info-label {
+      color: #6b7280;
+      font-weight: 500;
+      min-width: 80px;
+    }
+
+    .column-info-value {
+      color: #1f2937;
+      font-weight: 600;
+      text-align: right;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      overflow-wrap: break-word !important;
+      white-space: normal !important;
+    }
+
+    /* Split Header Info */
+    .split-header-info {
+      background: #f8fafc;
+      border-radius: 4px;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    .split-header-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.25rem 0;
+      font-size: 0.7rem;
+    }
+
+    .split-header-item.active {
+      background-color: #e3f2fd;
+      border-radius: 3px;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .split-header-name {
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    .split-header-value {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    /* ===== MODAL STYLES ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== QUANTITY CONTROLS ===== */
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .qty-btn {
+      background-color: #6366f1;
+      color: white;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.375rem;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .qty-btn:hover {
+      background-color: #4f46e5;
+    }
+
+    .qty-btn:disabled {
+      background-color: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .qty-input {
+      width: 5rem;
+      text-align: center;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-weight: 600;
+    }
+
+    /* ===== TEST TYPE BUTTONS ===== */
+    .test-type-btn {
+      background-color: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: left;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .test-type-btn:hover {
+      background-color: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .test-type-btn.selected {
+      background-color: #eff6ff;
+      border-color: #6366f1;
+    }
+
+    .param-card {
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-left: 3px solid #6366f1;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+    }
+
+    /* ===== ACTION BUTTONS ===== */
+    .action-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Ensure table fits container */
+    #testingTable {
+      min-width: 100%;
+      table-layout: fixed;
+    }
+
+    #testingTable th,
+    #testingTable td {
+      min-width: 80px;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #testingTable td.selected {
+      user-select: auto;
+    }
+
+    /* ===== LAYOUT STYLES ===== */
+    .testing-layout {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 1rem;
+      align-items: start;
+      min-height: calc(100vh - 120px);
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+      overflow-y: auto;
+    }
+
+    .test-info-card .grid.grid-cols-1.gap-2 {
+      gap: 0.25rem;
+    }
+
+    .test-info-card .grid.grid-cols-3 {
+      gap: 0.25rem;
+    }
+
+    .test-info-card,
+    .test-setup-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .test-info-card h2,
+    .test-setup-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .parameter-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .parameter-item:last-child {
+      border-bottom: none;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 1100px) {
+      .testing-layout {
+        grid-template-columns: 1fr;
       }
 
-      .no-spinner {
-        -moz-appearance: textfield;
-      }
-
-      /* For Firefox */
-      .no-spinner {
-        -webkit-appearance: none;
-        -moz-appearance: textfield;
-        appearance: none;
-      }
-
-      #testingTableBody input[type="number"]::-webkit-outer-spin-button,
-      #testingTableBody input[type="number"]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-
-      #testingTableBody input[type="number"] {
-        -moz-appearance: textfield;
-        -webkit-appearance: none;
-        appearance: none;
-      }
-
-      .input-field {
-          width: 100%;
-          padding: 0.5rem 1rem;
-          border: 1px solid #d1d5db;
-          border-radius: 0.375rem;
-          font-size: 0.875rem;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          color: #374151;
-          background-color: white;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          font-weight: normal;
-      }
-
-      .input-field:focus {
-          outline: none;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      .left-panel {
+        position: static;
+        max-height: none;
       }
 
       .test-section {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        padding: 1rem;
       }
 
-      .table-entry {
-        border-radius: 0.5rem;
-        overflow-y: auto;
-      }
-
-      /* ============================================
-         CUSTOM DROPDOWN STYLING
-         ============================================ */
-
-      .custom-dropdown-container {
-        position: relative;
-        width: 100%;
-      }
-
-      .custom-dropdown-input {
-        width: 100%;
-        padding: 0.5rem 1rem;
-        padding-right: 2.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-size: 0.875rem;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        color: #374151;
-        background-color: white;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        font-weight: normal !important;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1rem;
-        cursor: pointer;
-      }
-
-      .custom-dropdown-input:focus {
-        outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-      }
-
-      .custom-dropdown-input:hover {
-        border-color: #9ca3af;
-      }
-
-      .custom-dropdown-input:disabled {
-        background-color: #f3f4f6;
-        cursor: not-allowed;
-        color: #9ca3af;
-      }
-
-      .custom-dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background-color: white;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        max-height: 250px;
-        overflow-y: auto;
-        margin-top: 0.25rem;
-        font-weight: normal !important;
-      }
-
-      .custom-dropdown-menu.active {
-        display: block;
-      }
-
-      .custom-dropdown-item {
-        padding: 0.5rem 1rem;
-        font-family: inherit;
-        font-size: 0.875rem;
-        color: #374151;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        font-weight: normal !important;
-        border-bottom: 1px solid #f3f4f6;
-      }
-
-      .custom-dropdown-item:last-child {
-        border-bottom: none;
-      }
-
-      .custom-dropdown-item:hover {
-        background-color: #f3f4f6;
-      }
-
-      .custom-dropdown-item.selected {
-        background-color: #e3f2fd;
-        color: #3498db;
-      }
-
-      .custom-dropdown-item.highlighted {
-        background-color: #e3f2fd;
-        color: #3498db;
-      }
-
-      .custom-dropdown-item strong {
-        font-weight: 600 !important;
-        color: #1f2937;
-      }
-
-      .custom-dropdown-no-results {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        color: #9ca3af;
-        font-style: italic;
-        background-color: #f9fafb;
-      }
-
-      .btn-primary {
-        background-color: #6366f1;
-        color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
-      }
-
-      .btn-primary:hover {
-        background-color: #4f46e5;
-      }
-
-      .btn-success {
-        background-color: #52796f;
-        color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
-      }
-
-      .btn-success:hover {
-        background-color: #354f52;
-      }
-
-      .btn-danger {
-        background-color: #dc2626;
-        color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
-      }
-
-      .btn-danger:hover {
-        background-color: #b91c1c;
-      }
-
-      .btn-gray {
-        background-color: #6b7280;
-        color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
-      }
-
-      .btn-gray:hover {
-        background-color: #4b5563;
-      }
-
-      .btn-outline {
-        background-color: white;
-        color: #374151;
-        padding: 0.625rem 1.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        cursor: pointer;
-        font-size: 0.875rem;
-        position: sticky;
-      }
-
-      .btn-outline:hover {
-        background-color: #f9fafb;
-        border-color: #9ca3af;
-      }
-
-      .step-badge {
-        background-color: #354f52;
-        color: white;
-      }
-
-      .info-display {
-        background-color: #f9fafb;
-        padding: 0.75rem 1rem;
-        border-radius: 0.375rem;
-        margin-bottom: 0.5rem;
-        border: 1px solid #e5e7eb;
-      }
-
-      .var-display {
-        background-color: whitesmoke;
-        border-radius: 0.375rem;
-        padding: 0.125rem 0.25rem;
-        border: 1px solid #e5e7eb;
-      }
-
-      .test-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
-      }
-
-      .test-table th {
-        background-color: #52796f;
-        color: white;
-        padding: 0.75rem;
-        text-align: center;
-        font-weight: 600;
-        font-size: 0.8125rem;
-        position: sticky;
-        border: 1px solid #354f52;
-        top: 0;
-        z-index: 10;
-      }
-
-      .test-table thead {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-      }
-
-      .test-table th.sub-header {
-        background-color: #84a98c;
-        border: 1px solid #354f52;
-        position: sticky;
-        font-size: 0.6rem;
-        top: 0;
-        z-index: 10;
-      }
-
-      .test-table td {
-        padding: 0.25rem;
-        border: 1px solid #e5e7eb;
-        text-align: center;
-      }
-
-      .test-table input[type="text"],
-      .test-table input[type="number"],
-      .test-table select {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.25rem;
-        font-size: 0.8125rem;
-        text-align: center;
-      }
-
-      .test-table input:focus,
-      .test-table select:focus {
-        outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-      }
-
-      .test-table input.valid {
-        background-color: #d1fae5;
-        border-color: #059669;
-      }
-
-      .test-table input.invalid {
-        background-color: #fee2e2;
-        border-color: #dc2626;
-      }
-
-      .test-table select.valid {
-        background-color: #d1fae5;
-        border-color: #059669;
-        color: #047857;
-        font-weight: 600;
-      }
-
-      .test-table select.invalid {
-        background-color: #fee2e2;
-        border-color: #dc2626;
-        color: #b91c1c;
-        font-weight: 600;
+      .grid-cols-2,
+      .grid-cols-4 {
+        grid-template-columns: 1fr;
       }
 
       .table-container {
         overflow-x: auto;
-        overflow-y: auto;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        width: 100%;
-        max-height: calc(100vh - 100px);
       }
 
-      .table-container::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-
-      .table-container::-webkit-scrollbar-track {
-        background: #f3f4f6;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb {
-        background: #9ca3af;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb:hover {
-        background: #6b7280;
-      }
-
-      #testingTable {
-        min-width: 1000px;
-      }
-
-      .status-pass {
-        background-color: #059669;
-        color: white;
-        padding: 0.375rem 0.75rem;
-        border-radius: 0.25rem;
-        font-weight: 600;
-        font-size: 0.75rem;
-      }
-
-      .status-fail {
-        background-color: #a20021;
-        color: white;
-        padding: 0.375rem 0.75rem;
-        border-radius: 0.25rem;
-        font-weight: 600;
-        font-size: 0.75rem;
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      .modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal-content {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .qty-control {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .qty-btn {
-        background-color: #6366f1;
-        color: white;
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 0.375rem;
-        border: none;
-        font-size: 1.25rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.2s;
-      }
-
-      .qty-btn:hover {
-        background-color: #4f46e5;
-      }
-
-      .qty-btn:disabled {
-        background-color: #d1d5db;
-        cursor: not-allowed;
-      }
-
-      .qty-input {
-        width: 5rem;
-        text-align: center;
+      .info-display {
         padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-weight: 600;
       }
 
-      .test-type-btn {
-        background-color: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        text-align: left;
-        transition: all 0.2s;
-        cursor: pointer;
-      }
-
-      .test-type-btn:hover {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-      }
-
-      .test-type-btn.selected {
-        background-color: #eff6ff;
-        border-color: #6366f1;
-      }
-
-      .param-card {
-        background-color: white;
-        border: 1px solid #e5e7eb;
-        border-left: 3px solid #6366f1;
-        padding: 0.75rem 1rem;
-        border-radius: 0.375rem;
-      }
-
-      .row-actions {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-      }
-
-      .row-action-btn {
-        padding: 0.25rem 0.5rem;
+      .btn-success,
+      .btn-danger,
+      .btn-primary {
+        padding: 0.5rem 1rem;
         font-size: 0.75rem;
-        border-radius: 0.25rem;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .table-toolbar {
+        flex-wrap: wrap;
+        gap: 6px;
       }
 
-      .row-delete-btn {
-        background-color: #fee2e2;
-        color: #dc2626;
+      .toolbar-info {
+        margin-left: 0;
+        width: 100%;
+        order: 3;
+        margin-top: 4px;
       }
 
-      .row-delete-btn:hover {
-        background-color: #fecaca;
-      }
-
-      .warning-banner {
-        background-color: #fef3c7;
-        border: 1px solid #fbbf24;
-        border-radius: 0.375rem;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .warning-icon {
-        color: #f59e0b;
-        font-size: 1.25rem;
-      }
-
-      /* Responsive design */
-      @media (max-width: 1100px) {
-        .test-section {
-          padding: 1rem;
-        }
-
-        .grid-cols-2,
-        .grid-cols-4 {
-          grid-template-columns: 1fr;
-        }
-
-        .table-container {
-          overflow-x: auto;
-        }
-
-        .info-display {
-          padding: 0.5rem;
-        }
-
-        .btn-success,
-        .btn-danger,
-        .btn-primary {
-          padding: 0.5rem 1rem;
-          font-size: 0.75rem;
-        }
-      }
-
-      .navigation-warning {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: #fef3c7;
-        border-bottom: 1px solid #fbbf24;
-        padding: 0.75rem;
-        text-align: center;
-        z-index: 1001;
+      .keyboard-hint {
         display: none;
-      }
-
-      .navigation-warning.active {
-        display: block;
       }
 
       .testing-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
       }
+    }
 
-      .test-info-card,
-      .test-setup-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      }
+    /* Remove spinner from number inputs */
+    .test-table input[type="number"]::-webkit-inner-spin-button,
+    .test-table input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
 
-      .test-info-card h2,
-      .test-setup-card h2 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1rem;
-      }
+    .test-table input[type="number"] {
+      -moz-appearance: textfield;
+    }
 
-      .parameter-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #e5e7eb;
-      }
+    /* Navigation Warning */
+    .navigation-warning {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fef3c7;
+      border-bottom: 1px solid #fbbf24;
+      padding: 0.75rem;
+      text-align: center;
+      z-index: 1001;
+      display: none;
+    }
 
-      .parameter-item:last-child {
-        border-bottom: none;
-      }
+    .navigation-warning.active {
+      display: block;
+    }
+  </style>
+</head>
 
-      .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        position: sticky;
-      }
+<body class="bg-gray-100">
+  <div class="h-screen">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
 
-      @media (max-width: 768px) {
-        .testing-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .testing-layout {
-        display: grid;
-        grid-template-columns: 200px 1fr;
-        gap: 1rem;
-        align-items: start;
-        min-height: calc(100vh - 120px);
-      }
-
-      .left-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        width: 100%;
-        position: sticky;
-        top: 20px;
-        height: fit-content;
-        overflow-y: auto;
-      }
-
-      .test-info-card .grid.grid-cols-1.gap-2 {
-        gap: 0.25rem;
-      }
-
-      .test-info-card .grid.grid-cols-3 {
-        gap: 0.25rem;
-      }
-
-      .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-      }
-
-      @media (max-width: 1100px) {
-        .testing-layout {
-          grid-template-columns: 1fr;
-        }
-        .left-panel {
-          position: static;
-          max-height: none;
-        }
-      }
-
-      /* borders table inputs */
-      .test-table input[type="text"],
-      .test-table input[type="number"],
-      .test-table select {
-        border: none !important;
-        background: transparent;
-      }
-
-      .test-table input[type="text"]:focus,
-      .test-table input[type="number"]:focus,
-      .test-table select:focus {
-        border: none !important;
-        outline: none;
-        box-shadow: none;
-      }
-
-      .test-table input.valid,
-      .test-table select.valid {
-        background-color: #d1fae5;
-        border: none !important;
-      }
-
-      .test-table input.invalid,
-      .test-table select.invalid {
-        background-color: #fee2e2;
-        border: none !important;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100">
-    <div class="h-screen">
-      <!-- Sidebar -->
-      <div id="sidebar-container"></div>
-
-      <!-- Main Content -->
-      <div
-        class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen"
-      >
-        <main
-          class="flex-1 overflow-y-auto p-4 bg-white border border-gray-300 rounded-tl-2xl"
-        >
-          <!-- Setup Section -->
-          <div id="setupSection">
-            <div class="pl-2 pt-2 mb-6">
-              <h1 class="text-2xl font-bold text-[#2F3E46] mb-1">
-                Testing Setup
-              </h1>
-            </div>
-
-            <div class="test-section">
-              <div class="flex items-center gap-2 mb-4 text-center">
-                <span class="step-badge rounded-full w-6 h-6">1</span>
-                <h2 class="text-lg font-semibold text-gray-800">
-                  Product Selection
-                </h2>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Product Name *</label
-                  >
-                  <div class="custom-dropdown-container">
-                    <input 
-                      type="text" 
-                      id="selectProduct" 
-                      class="custom-dropdown-input" 
-                      placeholder="Ketik atau pilih produk"
-                      autocomplete="off"
-                    >
-                    <div id="productDropdown" class="custom-dropdown-menu"></div>
-                  </div>
-                </div>
-
-                <div id="seriesContainer" class="hidden">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Device *</label
-                  >
-                  <div class="custom-dropdown-container">
-                    <input 
-                      type="text" 
-                      id="selectSeries" 
-                      class="custom-dropdown-input" 
-                      placeholder="Ketik atau pilih device"
-                      autocomplete="off"
-                    >
-                    <div id="seriesDropdown" class="custom-dropdown-menu"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="testTypeSection" class="test-section hidden">
-              <div class="flex items-center gap-2 mb-4 text-center">
-                <span class="step-badge rounded-full w-6 h-6">2</span>
-                <h2 class="text-lg font-semibold text-gray-800">
-                  Select Test Type
-                </h2>
-              </div>
-              <div
-                id="testTypeList"
-                class="grid grid-cols-1 md:grid-cols-3 gap-3"
-              >
-                <!-- Test type buttons -->
-              </div>
-            </div>
-
-            <div id="testInfoSection" class="test-section hidden">
-              <div class="flex items-center gap-2 mb-4 text-center">
-                <span class="step-badge rounded-full w-6 h-6">3</span>
-                <h2 class="text-lg font-semibold text-gray-800">
-                  Test Information
-                </h2>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Operator *</label
-                  >
-                  <input
-                    type="text"
-                    id="inputTesterName"
-                    class="input-field"
-                    placeholder="Enter tester name"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Test Date *</label
-                  >
-                  <input type="date" id="inputTestDate" class="input-field" />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Multimeter SN</label
-                  >
-                  <input
-                    type="text"
-                    id="inputMultimeterSN"
-                    class="input-field"
-                    placeholder="Enter multimeter serial number"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Oscilloscope SN</label
-                  >
-                  <input
-                    type="text"
-                    id="inputOscilloscopeSN"
-                    class="input-field"
-                    placeholder="Enter oscilloscope serial number"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >PO Number *</label
-                  >
-                  <input
-                    type="text"
-                    id="inputPONumber"
-                    class="input-field"
-                    placeholder="Enter PO number"
-                    oninput="validateNumericInput(this)"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Starting Serial Number *</label
-                  >
-                  <input
-                    type="text"
-                    id="inputSerialNumber"
-                    class="input-field"
-                    placeholder="Enter starting serial number"
-                    oninput="validateNumericInput(this)"
-                  />
-                  <p class="text-xs text-gray-500 mt-1">
-                    Serial numbers will be generated based on quantity
-                  </p>
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2"
-                    >Quantity *</label
-                  >
-                  <div class="qty-control">
-                    <button
-                      type="button"
-                      class="qty-btn"
-                      onclick="decrementQty()"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      id="inputQty"
-                      class="qty-input"
-                      value="1"
-                      min="1"
-                      max="100"
-                    />
-                    <button
-                      type="button"
-                      class="qty-btn"
-                      onclick="incrementQty()"
-                    >
-                      +
-                    </button>
-                    <span
-                      id="serialRangeDisplay"
-                      class="text-sm text-gray-600 ml-4"
-                    ></span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex mx-auto justify-end mt-2">
-                <button id="btnStartTesting" class="btn-success">
-                  Start Testing →
-                </button>
-              </div>
-            </div>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-14 overflow-auto custom-scrollbar h-screen">
+      <main class="flex-1 overflow-y-auto p-4 bg-white border border-gray-300 rounded-tl-2xl">
+        <!-- Setup Section -->
+        <div id="setupSection">
+          <div class="pl-2 pt-2 mb-6">
+            <h1 class="text-2xl font-bold text-[#2F3E46] mb-1">
+              Testing Setup
+            </h1>
           </div>
 
-          <!-- Testing Section -->
-          <div id="testingSection" class="hidden">
-            <!-- Main Content -->
-            <div class="testing-layout">
-              <!-- Left Column -->
-              <div class="left-panel">
-                <!-- Test Info -->
-                <div class="test-info-card">
-                  <h2>Test Info</h2>
+          <div class="test-section">
+            <div class="flex items-center gap-2 mb-4 text-center">
+              <span class="step-badge rounded-full w-6 h-6">1</span>
+              <h2 class="text-lg font-semibold text-gray-800">
+                Pilih Produk
+              </h2>
+            </div>
 
-                  <div class="grid grid-cols-1 gap-2">
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        Device :
-                      </div>
-                      <div
-                        id="displayProduct"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        Test Type :
-                      </div>
-                      <div
-                        id="displayTestType"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        Tester :
-                      </div>
-                      <div
-                        id="displayTester"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        Date :
-                      </div>
-                      <div
-                        id="displayDate"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        PO Number :
-                      </div>
-                      <div
-                        id="displayPO"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        SN :
-                      </div>
-                      <div
-                        id="displaySerial"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 items-center gap-2">
-                      <div class="text-[8px] text-gray-600 col-span-1">
-                        Quantity :
-                      </div>
-                      <div
-                        id="displayQty"
-                        class="var-display col-span-2 text-[11px]"
-                      >
-                        -
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Test Setup -->
-                <div class="test-setup-card">
-                  <h2>Test Setup</h2>
-
-                  <div id="testParametersDisplay" class="space-y-2">
-                    <!-- Parameters -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Column -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <div class="table-entry">
-                  <div class="table-container">
-                    <table id="testingTable" class="test-table">
-                      <thead id="testingTableHead">
-                        <!-- Table headers -->
-                      </thead>
-                      <tbody id="testingTableBody">
-                        <!-- Table rows -->
-                      </tbody>
-                    </table>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Produk *</label>
+                <div class="custom-dropdown-container">
+                  <input type="text" id="selectProduct" class="custom-dropdown-input"
+                    placeholder="Ketik atau pilih produk" autocomplete="off">
+                  <div id="productDropdown" class="custom-dropdown-menu"></div>
+                </div>
+              </div>
+
+              <div id="seriesContainer" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Device *</label>
+                <div class="custom-dropdown-container">
+                  <input type="text" id="selectSeries" class="custom-dropdown-input"
+                    placeholder="Ketik atau pilih device" autocomplete="off">
+                  <div id="seriesDropdown" class="custom-dropdown-menu"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="testTypeSection" class="test-section hidden">
+            <div class="flex items-center gap-2 mb-4 text-center">
+              <span class="step-badge rounded-full w-6 h-6">2</span>
+              <h2 class="text-lg font-semibold text-gray-800">
+                Pilih Tipe Test
+              </h2>
+            </div>
+            <div id="testTypeList" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <!-- Test type buttons -->
+            </div>
+          </div>
+
+          <div id="testInfoSection" class="test-section hidden">
+            <div class="flex items-center gap-2 mb-4 text-center">
+              <span class="step-badge rounded-full w-6 h-6">3</span>
+              <h2 class="text-lg font-semibold text-gray-800">
+                Informasi Test
+              </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Operator *</label>
+                <input type="text" id="inputTesterName" class="input-field" placeholder="Masukkan Nama Tester" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Test Date *</label>
+                <input type="date" id="inputTestDate" class="input-field" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Multimeter SN</label>
+                <input type="text" id="inputMultimeterSN" class="input-field"
+                  placeholder="Masukkan Serial Number Multimeter (Opsional)" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Oscilloscope SN</label>
+                <input type="text" id="inputOscilloscopeSN" class="input-field"
+                  placeholder="Masukkan Serial Number Oscilloscope (Opsional)" />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">PO Number *</label>
+                  <input type="text" id="inputPONumber" class="input-field" placeholder="Masukkan PO number"
+                    oninput="validateNumericInput(this)" />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Lot Number</label>
+                  <input type="text" id="inputLotNumber" class="input-field"
+                    placeholder="Masukkan Lot Number (Opsional)" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Starting Serial Number *</label>
+                <input type="text" id="inputSerialNumber" class="input-field"
+                  placeholder="Masukkan Serial Number Awal Produk" oninput="validateNumericInput(this)" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah *</label>
+                <div class="qty-control">
+                  <button type="button" class="qty-btn" onclick="decrementQty()">
+                    −
+                  </button>
+                  <input type="number" id="inputQty" class="qty-input" value="1" min="1" max="100" />
+                  <button type="button" class="qty-btn" onclick="incrementQty()">
+                    +
+                  </button>
+                  <span id="serialRangeDisplay" class="text-sm text-gray-600 ml-4"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex mx-auto justify-end mt-2">
+              <button id="btnStartTesting" class="btn-success">
+                Mulai Testing →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testing Section -->
+        <div id="testingSection" class="hidden">
+          <div class="testing-layout">
+            <!-- Right Column (Table) -->
+            <div>
+              <div class="table-entry">
+                <!-- Toolbar untuk selection -->
+                <div class="table-toolbar">
+                  <div class="selection-controls">
+                    <span class="text-sm font-medium text-gray-700">Selection:</span>
+                    <button id="btnSelectAll" class="toolbar-btn">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                      </svg>
+                      Select All Cells
+                    </button>
+                    <button id="btnClearSelection" class="toolbar-btn danger" style="display: none;">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear Selection
+                    </button>
                   </div>
-                  <div class="action-buttons">
-                    <button id="btnCancelTest" class="btn-outline">
-                      Cancel
-                    </button>
-                    <button id="btnSubmitTest" class="btn-success">
-                      Submit
-                    </button>
+
+                  <!-- <div>
+                    <div>
+                      <span class="column-info-label">Column:</span>
+                      <span id="columnName" class="column-info-value">-</span>
+                    </div>
+                    <div>
+                      <span class="column-info-label">LSL:</span>
+                      <span id="columnLSL" class="column-info-value">-</span>
+                      <span class="column-info-label">USL:</span>
+                      <span id="columnUSL" class="column-info-value">-</span>
+                    </div>
+                  </div> -->
+
+                  <div class="toolbar-info">
+                    <span id="selectionInfo">Click to select, Shift+Click for range</span>
+                    <span class="keyboard-hint ml-3">
+                      Hold <span class="kbd-key">Shift</span> for range selection
+                    </span>
+                  </div>
+                </div>
+
+                <div class="table-container" id="tableContainer">
+                  <table id="testingTable" class="test-table">
+                    <thead id="testingTableHead">
+                      <!-- Table headers will be generated by JavaScript -->
+                    </thead>
+                    <tbody id="testingTableBody">
+                      <!-- Table rows will be generated by JavaScript -->
+                    </tbody>
+                  </table>
+
+                </div>
+
+                <!-- Selection rectangle (visual only) -->
+                <div id="selectionRectangle" class="selection-rectangle">
+                </div>
+
+                <div class="action-buttons">
+                  <button id="btnCancelTest" class="btn-outline">
+                    Cancel
+                  </button>
+                  <button id="btnSubmitTest" class="btn-success">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Left Panel (Info) -->
+            <div class="left-panel">
+              <!-- Test Info -->
+              <div class="test-info-card">
+                <h2 class="flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Test Info
+                </h2>
+                <div class="grid grid-cols-1 gap-2">
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">Device :</div>
+                    <div id="displayProduct" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">Test Type :</div>
+                    <div id="displayTestType" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">Tester :</div>
+                    <div id="displayTester" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">Date :</div>
+                    <div id="displayDate" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">PO Number :</div>
+                    <div id="displayPO" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">SN :</div>
+                    <div id="displaySerial" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-2">
+                    <div class="text-[10px] text-gray-600 col-span-1">Quantity :</div>
+                    <div id="displayQty" class="var-display col-span-2 text-[11px]">-</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Test Setup -->
+              <div class="test-setup-card">
+                <h2 class="flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Test Setup
+                </h2>
+                <div id="testParametersDisplay" class="space-y-2">
+                  <!-- Parameters will be displayed here -->
+                </div>
+              </div>
+
+              <!-- Column Info -->
+              <div class="column-info-card">
+                <h2 class="flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Column Info
+                </h2>
+                <div id="columnInfoContent" class="space-y-2">
+                  <div class="column-info-item">
+                    <span class="column-info-label">Column:</span>
+                    <span id="columnName" class="column-info-value">-</span>
+                  </div>
+                  <div class="column-info-item">
+                    <span class="column-info-label">LSL:</span>
+                    <span id="columnLSL" class="column-info-value">-</span>
+                  </div>
+                  <div class="column-info-item">
+                    <span class="column-info-label">USL:</span>
+                    <span id="columnUSL" class="column-info-value">-</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </main>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="modalConfirm" class="modal">
+    <div class="modal-content">
+      <h3 class="text-lg font-bold text-gray-800 mb-3" id="confirmTitle">
+        Confirm Action
+      </h3>
+      <p class="text-sm text-gray-600 mb-6" id="confirmMessage"></p>
+      <div class="flex gap-3 justify-end">
+        <button id="btnConfirmNo" class="btn-gray">No</button>
+        <button id="btnConfirmYes" class="btn-primary">Yes</button>
       </div>
     </div>
+  </div>
 
-    <!-- Confirmation Modal -->
-    <div id="modalConfirm" class="modal">
-      <div class="modal-content">
-        <h3 class="text-lg font-bold text-gray-800 mb-3" id="confirmTitle">
-          Confirm Action
-        </h3>
-        <p class="text-sm text-gray-600 mb-6" id="confirmMessage"></p>
-        <div class="flex gap-3 justify-end">
-          <button id="btnConfirmNo" class="btn-gray">No</button>
-          <button id="btnConfirmYes" class="btn-primary">Yes</button>
+  <!-- Error Modal -->
+  <div id="modalError" class="modal" onclick="closeErrorModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="flex items-center mb-3">
+        <div class="bg-red-100 p-2 rounded-full mr-3">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
+        <h3 class="text-lg font-bold text-gray-800">Error</h3>
+      </div>
+      <p class="text-sm text-gray-600 mb-6" id="errorMessage"></p>
+      <div class="flex justify-end">
+        <button onclick="closeErrorModal()" class="btn-danger">Close</button>
       </div>
     </div>
+  </div>
 
-    <!-- Error Modal -->
-    <div id="modalError" class="modal" onclick="closeErrorModal(event)">
-      <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="flex items-center mb-3">
-          <div class="bg-red-100 p-2 rounded-full mr-3">
-            <svg
-              class="w-6 h-6 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-800">Error</h3>
+  <!-- Success Modal -->
+  <div id="modalSuccess" class="modal">
+    <div class="modal-content">
+      <div class="flex items-center mb-3">
+        <div class="bg-green-100 p-2 rounded-full mr-3">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
-        <p class="text-sm text-gray-600 mb-6" id="errorMessage"></p>
-        <div class="flex justify-end">
-          <button onclick="closeErrorModal()" class="btn-danger">Close</button>
-        </div>
+        <h3 class="text-lg font-bold text-gray-800">Success</h3>
+      </div>
+      <p class="text-sm text-gray-600 mb-6" id="successMessage"></p>
+      <div class="flex justify-end">
+        <button id="btnCloseSuccess" class="btn-success">Close</button>
       </div>
     </div>
+  </div>
 
-    <!-- Success Modal -->
-    <div id="modalSuccess" class="modal">
-      <div class="modal-content">
-        <div class="flex items-center mb-3">
-          <div class="bg-green-100 p-2 rounded-full mr-3">
-            <svg
-              class="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-800">Success</h3>
+  <!-- Navigation Warning Modal -->
+  <div id="modalNavigationWarning" class="modal">
+    <div class="modal-content">
+      <div class="flex items-center mb-3">
+        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z">
+            </path>
+          </svg>
         </div>
-        <p class="text-sm text-gray-600 mb-6" id="successMessage"></p>
-        <div class="flex justify-end">
-          <button id="btnCloseSuccess" class="btn-success">Close</button>
-        </div>
+        <h3 class="text-lg font-bold text-gray-800">Testing in Progress</h3>
+      </div>
+      <p class="text-sm text-gray-600 mb-6">
+        Are you sure you want to leave this page? All unsaved test data will
+        be lost.
+      </p>
+      <div class="flex gap-3 justify-end">
+        <button id="btnCancelNavigation" class="btn-gray">
+          Stay on Page
+        </button>
+        <button id="btnConfirmNavigation" class="btn-danger">
+          Leave Page
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- Navigation Warning Modal -->
-    <div id="modalNavigationWarning" class="modal">
-      <div class="modal-content">
-        <div class="flex items-center mb-3">
-          <div class="bg-yellow-100 p-2 rounded-full mr-3">
-            <svg
-              class="w-6 h-6 text-yellow-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
-              ></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-800">Testing in Progress</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-6">
-          Are you sure you want to leave this page? All unsaved test data will
-          be lost.
-        </p>
-        <div class="flex gap-3 justify-end">
-          <button id="btnCancelNavigation" class="btn-gray">
-            Stay on Page
-          </button>
-          <button id="btnConfirmNavigation" class="btn-danger">
-            Leave Page
-          </button>
-        </div>
-      </div>
-    </div>
+  <script src="../Assets/js/sidebar-loader.js"></script>
+  <script>
+    function validateNumericInput(input) {
+      input.value = input.value.replace(/[^0-9]/g, "");
+    }
 
-    <script src="../Assets/js/sidebar-loader.js"></script>
-    <script>
-      function validateNumericInput(input) {
-        input.value = input.value.replace(/[^0-9]/g, "");
+    document.addEventListener("DOMContentLoaded", async () => {
+      await SidebarLoader.load("sidebar-container", "about");
+
+      if (window.electronAPI && window.electronAPI.onPageLoaded) {
+        window.electronAPI.onPageLoaded((pageName) => {
+          SidebarLoader.setActivePage(pageName);
+        });
       }
+    });
+  </script>
+  <script src="../Assets/js/Testing.js"></script>
+</body>
 
-      document.addEventListener("DOMContentLoaded", async () => {
-        await SidebarLoader.load("sidebar-container", "about");
-
-        if (window.electronAPI && window.electronAPI.onPageLoaded) {
-          window.electronAPI.onPageLoaded((pageName) => {
-            SidebarLoader.setActivePage(pageName);
-          });
-        }
-      });
-    </script>
-    <script src="../Assets/js/Testing.js"></script>
-  </body>
 </html>

@@ -1,4 +1,4 @@
-// preload.js - COMPLETE FILE
+// preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   Admin: (data) => ipcRenderer.send('Admin', data),
   Generate: (data) => ipcRenderer.send('Generate', data),
   DataEntry: (data) => ipcRenderer.send('DataEntry', data),
-  AddProduct: (data) => ipcRenderer.send('AddProduct', data), // NEW
+  AddProduct: (data) => ipcRenderer.send('AddProduct', data),
   Testing: (data) => ipcRenderer.send('Testing', data),
 
   // ============================================
@@ -45,12 +45,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getProductsBySeries: () => ipcRenderer.invoke('get-products-by-series'),
 
   // ============================================
-  // DATA ENTRY API
+  // DATA ENTRY API - HAPUS SATU DEFINISI
   // ============================================
   getTemplatesByProduct: (productId) => ipcRenderer.invoke('get-templates-by-product', productId),
   getCompletedTestsByProduct: (productId) => ipcRenderer.invoke('get-completed-tests-by-product', productId),
   checkPreviousTest: (data) => ipcRenderer.invoke('check-previous-test', data),
-  submitTestEntries: (submitData) => ipcRenderer.invoke('submit-test-entries', submitData),
+  submitTestEntries: (submitData) => ipcRenderer.invoke('submit-test-entries', submitData), // ← HANYA INI SATU
   
   // ============================================
   // RETEST API (ADMIN ONLY)

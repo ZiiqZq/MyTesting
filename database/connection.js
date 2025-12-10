@@ -7,7 +7,7 @@ function connectToDatabase() {
     user: 'root',
     password: 'root',
     database: 'testing_db',
-    connectTimeout: 10000, // 10 detik timeout
+    connectTimeout: 10000,
     acquireTimeout: 10000,
     timeout: 10000,
     reconnect: true
