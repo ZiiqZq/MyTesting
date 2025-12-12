@@ -20,6 +20,301 @@ let isCtrlPressed = false;
 // Header mapping untuk tracking
 let headerColumnMap = new Map(); // Maps: globalIndex -> {element, type, parentIndex}
 
+// Navigation lock system
+let navigationWarningActive = false;
+let navigationTarget = null;
+
+// ============================================
+// NAVIGATION LOCK SYSTEM
+// ============================================
+function initNavigationLock() {
+    console.log("Initializing navigation lock...");
+    
+    // Event listener untuk sebelum window ditutup
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Event listener untuk menangkap klik navigasi di sidebar
+    setupSidebarNavigationLock();
+    
+    // Setup Electron close event
+    setupElectronCloseHandler();
+}
+
+function cleanupNavigationLock() {
+    console.log("Cleaning up navigation lock...");
+    
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    removeSidebarNavigationLock();
+    
+    if (window.electronAPI && window.electronAPI.removeAllListeners) {
+        window.electronAPI.removeAllListeners('close-warning');
+    }
+    
+    navigationWarningActive = false;
+    navigationTarget = null;
+}
+
+function handleBeforeUnload(event) {
+    if (testingInProgress) {
+        event.preventDefault();
+        event.returnValue = 'Testing sedang berjalan! Semua data akan hilang jika Anda meninggalkan halaman.';
+        
+        // Jika Electron API tersedia, gunakan modal custom
+        if (window.electronAPI) {
+            showNavigationWarningModal('leave');
+        }
+        return event.returnValue;
+    }
+}
+
+function setupSidebarNavigationLock() {
+    console.log("Setting up sidebar navigation lock...");
+    
+    // Tangkap semua klik pada sidebar dan dropdown
+    document.addEventListener('click', handleNavigationClick, true);
+}
+
+function removeSidebarNavigationLock() {
+    document.removeEventListener('click', handleNavigationClick, true);
+}
+
+function handleNavigationClick(event) {
+    if (!testingInProgress) return;
+    
+    const target = event.target.closest('[data-page], .sidebar-btn, .dropdown-item, .dropdown-item button');
+    
+    if (target) {
+        // Cek jika ini adalah elemen navigasi
+        const dataPage = target.getAttribute('data-page');
+        const isSidebarBtn = target.classList.contains('sidebar-btn');
+        const isDropdownItem = target.classList.contains('dropdown-item');
+        const isDropdownBtn = target.closest('.dropdown-item') && target.tagName === 'BUTTON';
+        
+        const isNavigationElement = dataPage || isSidebarBtn || isDropdownItem || isDropdownBtn;
+        
+        if (isNavigationElement && !target.closest('#modalNavigationWarning')) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Dapatkan nama halaman target
+            let pageName = dataPage;
+            if (!pageName && (isDropdownItem || isDropdownBtn)) {
+                // Coba dapatkan dari teks atau atribut lain
+                const pageElement = isDropdownItem ? target : target.closest('.dropdown-item');
+                if (pageElement) {
+                    pageName = pageElement.getAttribute('data-page') || 
+                               pageElement.textContent.trim().toLowerCase().replace(/\s+/g, '');
+                }
+            }
+            
+            if (pageName) {
+                // Simpan target navigasi untuk digunakan nanti
+                navigationTarget = {
+                    element: target,
+                    page: pageName
+                };
+                
+                // Tampilkan warning modal
+                showNavigationWarningModal('navigate');
+            }
+        }
+    }
+}
+
+function setupElectronCloseHandler() {
+    if (window.electronAPI && window.electronAPI.onCloseWarning) {
+        window.electronAPI.onCloseWarning(() => {
+            if (testingInProgress) {
+                showNavigationWarningModal('leave');
+                return true; // Mencegah window close
+            }
+            return false; // Izinkan window close
+        });
+    }
+}
+
+function showNavigationWarningModal(type) {
+    if (navigationWarningActive) return;
+    
+    navigationWarningActive = true;
+    
+    const modal = document.getElementById('modalNavigationWarning');
+    const title = modal.querySelector('h3');
+    const message = modal.querySelector('p');
+    const cancelBtn = document.getElementById('btnCancelNavigation');
+    const confirmBtn = document.getElementById('btnConfirmNavigation');
+    
+    if (!modal || !title || !message || !cancelBtn || !confirmBtn) {
+        console.error('Modal navigation warning elements not found');
+        navigationWarningActive = false;
+        return;
+    }
+    
+    if (type === 'leave') {
+        title.textContent = 'Keluar dari Testing';
+        message.textContent = 'Testing sedang berjalan. Semua data testing akan hilang jika Anda meninggalkan halaman. Yakin ingin keluar?';
+        confirmBtn.textContent = 'Keluar';
+    } else {
+        title.textContent = 'Pindah Halaman';
+        message.textContent = 'Testing sedang berjalan. Semua data testing akan hilang jika Anda pindah halaman. Yakin ingin pindah?';
+        confirmBtn.textContent = 'Pindah';
+    }
+    
+    // Clone buttons untuk menghindari duplicate event listeners
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    // Setup event listeners baru
+    newCancelBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        navigationWarningActive = false;
+        navigationTarget = null;
+    });
+    
+    newConfirmBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        navigationWarningActive = false;
+        
+        if (type === 'leave') {
+            // Tutup aplikasi melalui Electron API
+            resetTestingData();
+            if (window.electronAPI && window.electronAPI.closeWindow) {
+                window.electronAPI.closeWindow();
+            }
+        } else if (type === 'navigate' && navigationTarget) {
+            // Reset semua data testing
+            resetTestingData();
+            
+            // Lakukan navigasi
+            if (navigationTarget.page) {
+                const pageMap = {
+                    'dashboard': 'Dashboard.html',
+                    'view': 'View.html',
+                    'about': 'Testing.html',
+                    'dataentry': 'DataEntry.html',
+                    'generate': 'Generate.html',
+                    'testing': 'Testing.html',
+                    'addproduct': 'AddProduct.html',
+                    'settings': 'Settings.html',
+                    'addproduct': 'AddProduct.html',
+                    'manageproduct': 'Manage.html',
+                    'generatecolumn': 'Generate.html'
+                };
+                
+                const pageFile = pageMap[navigationTarget.page.toLowerCase()];
+                if (pageFile && window.electronAPI && window.electronAPI.navigateTo) {
+                    window.electronAPI.navigateTo(`Page/${pageFile}`);
+                } else if (window.SidebarLoader && window.SidebarLoader.navigateToPage) {
+                    window.SidebarLoader.navigateToPage(navigationTarget.page);
+                }
+            }
+        }
+    });
+    
+    modal.classList.add('active');
+    
+    // Close modal ketika klik di luar
+    const closeModalOnOutsideClick = (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            navigationWarningActive = false;
+            navigationTarget = null;
+            modal.removeEventListener('click', closeModalOnOutsideClick);
+        }
+    };
+    
+    modal.addEventListener('click', closeModalOnOutsideClick);
+    
+    // Close modal dengan Escape key
+    const closeModalOnEscape = (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            navigationWarningActive = false;
+            navigationTarget = null;
+            document.removeEventListener('keydown', closeModalOnEscape);
+        }
+    };
+    
+    document.addEventListener('keydown', closeModalOnEscape);
+}
+
+function resetTestingData() {
+    console.log('Resetting all testing data...');
+    
+    // Reset semua state variables
+    selectedProduct = null;
+    selectedTestType = null;
+    testParameters = [];
+    templateData = null;
+    testingInProgress = false;
+    testInformation = {};
+    tableRows = [];
+    selectedCells.clear();
+    selectionStartCell = null;
+    headerColumnMap.clear();
+    
+    // Reset UI ke state awal
+    document.getElementById("setupSection").classList.remove("hidden");
+    document.getElementById("testingSection").classList.add("hidden");
+    
+    // Reset semua input fields
+    const resetFields = {
+        "selectProduct": "",
+        "selectSeries": "",
+        "inputTesterName": "",
+        "inputTestDate": new Date().toISOString().split("T")[0],
+        "inputPONumber": "",
+        "inputLotNumber": "",
+        "inputSerialNumber": "",
+        "inputQty": "1",
+        "inputMultimeterSN": "",
+        "inputOscilloscopeSN": ""
+    };
+    
+    Object.entries(resetFields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value;
+            element.classList.remove('invalid');
+        }
+    });
+    
+    // Sembunyikan semua section
+    ["seriesContainer", "testTypeSection", "testInfoSection"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+    });
+    
+    // Kosongkan dropdowns
+    const productDropdown = document.getElementById("productDropdown");
+    const seriesDropdown = document.getElementById("seriesDropdown");
+    if (productDropdown) productDropdown.innerHTML = "";
+    if (seriesDropdown) seriesDropdown.innerHTML = "";
+    
+    document.getElementById("testTypeList").innerHTML = "";
+    document.getElementById("testParametersDisplay").innerHTML = "";
+    
+    // Reset table
+    const thead = document.getElementById("testingTableHead");
+    const tbody = document.getElementById("testingTableBody");
+    if (thead) thead.innerHTML = "";
+    if (tbody) tbody.innerHTML = "";
+    
+    // Reset serial display
+    updateSerialRangeDisplay();
+    
+    // Cleanup selection features
+    clearSelection();
+    
+    // Cleanup navigation lock
+    cleanupNavigationLock();
+    
+    console.log('Testing data reset complete');
+}
+
 // ============================================
 // RESET FUNCTIONS
 // ============================================
@@ -88,7 +383,7 @@ function resetTestTypeAndBelow() {
 }
 
 // ============================================
-// MODAL FUNCTIONS (sama seperti sebelumnya)
+// MODAL FUNCTIONS
 // ============================================
 function showErrorModal(message) {
     const errorMessage = document.getElementById("errorMessage");
@@ -177,7 +472,7 @@ function setupSuccessModalClose() {
 }
 
 // ============================================
-// QTY CONTROLS (sama seperti sebelumnya)
+// QTY CONTROLS
 // ============================================
 function incrementQty() {
     const input = document.getElementById("inputQty");
@@ -234,16 +529,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupEventListeners();
     setupModalCloseEvents();
     
-    window.addEventListener("beforeunload", (e) => {
-        if (testingInProgress) {
-            e.preventDefault();
-            e.returnValue = "Testing sedang berjalan! Semua data akan hilang jika Anda meninggalkan halaman.";
-        }
-    });
+    // Setup untuk modal after submit
+    setupAfterSubmitModalHandlers();
 });
 
 // ============================================
-// SELECTION SYSTEM - DIPERBAIKI
+// SELECTION SYSTEM
 // ============================================
 function initSelectionFeatures() {
     setupKeyboardEvents();
@@ -279,7 +570,6 @@ function setupHeaderColumnMapping() {
     const thead = table.querySelector('thead');
     if (!thead) return;
     
-    // Map semua header ke global index
     const headers = thead.querySelectorAll('th');
     headers.forEach(header => {
         const globalIndex = header.getAttribute('data-global-index');
@@ -429,19 +719,16 @@ function handleHeaderClick(e) {
     
     e.stopPropagation();
     
-    // Dapatkan global index dari header yang diklik
     const globalIndex = parseInt(th.getAttribute('data-global-index'));
     if (isNaN(globalIndex) || globalIndex < 2) return;
     
     console.log(`Clicked header: ${th.textContent}, Global Index: ${globalIndex}, Type: ${th.classList.contains('sub-header') ? 'sub' : 'main'}`);
     
     if (isShiftPressed && selectionStartCell) {
-        // Range selection
         const startCol = Math.min(selectionStartCell.col, globalIndex);
         const endCol = Math.max(selectionStartCell.col, globalIndex);
         selectColumnRange(startCol, endCol);
     } else {
-        // Single column selection
         selectColumn(globalIndex);
     }
     
@@ -450,7 +737,7 @@ function handleHeaderClick(e) {
 }
 
 // ============================================
-// SELECTION UTILITIES - DIPERBAIKI
+// SELECTION UTILITIES
 // ============================================
 function getCellPosition(td) {
     const row = td.closest('tr');
@@ -539,7 +826,6 @@ function selectColumn(colIndex) {
         selectCell(row, colIndex);
     }
     
-    // Highlight header yang sesuai
     const headerInfo = headerColumnMap.get(colIndex);
     if (headerInfo) {
         headerInfo.element.classList.add('selected');
@@ -561,36 +847,12 @@ function selectColumnRange(startCol, endCol) {
         }
     }
     
-    // Highlight semua header dalam range
     for (let col = startCol; col <= endCol; col++) {
         if (col >= 2) {
             const headerInfo = headerColumnMap.get(col);
             if (headerInfo) {
                 headerInfo.element.classList.add('selected');
             }
-        }
-    }
-}
-
-function selectMultipleColumns(startCol, endCol) {
-    if (startCol < 2) return;
-    
-    const table = document.getElementById('testingTable');
-    const tbody = table.querySelector('tbody');
-    const rows = tbody.children;
-    
-    clearSelection();
-    
-    for (let row = 0; row < rows.length; row++) {
-        for (let col = startCol; col <= endCol; col++) {
-            if (col >= 2) selectCell(row, col);
-        }
-    }
-    
-    for (let col = startCol; col <= endCol; col++) {
-        if (col >= 2) {
-            const headerInfo = headerColumnMap.get(col);
-            if (headerInfo) headerInfo.element.classList.add('selected');
         }
     }
 }
@@ -609,7 +871,6 @@ function selectAllEditableCells() {
         }
     }
     
-    // Highlight semua header yang memiliki data-global-index
     headerColumnMap.forEach((info, index) => {
         if (index >= 2) {
             info.element.classList.add('selected');
@@ -641,14 +902,12 @@ function clearSelection() {
     const clearBtn = document.getElementById('btnClearSelection');
     if (clearBtn) clearBtn.style.display = 'none';
     
-    // Reset ke default hanya 3 field
     document.getElementById('columnName').textContent = '-';
     document.getElementById('columnLSL').textContent = '-';
     document.getElementById('columnUSL').textContent = '-';
     
     updateSelectionInfo("Selection cleared");
 }
-
 
 function getFirstSelectedCell() {
     if (selectedCells.size === 0) return null;
@@ -701,73 +960,7 @@ function applyToSelectedCells(sourceInput) {
 }
 
 // ============================================
-// HEADER UTILITIES - DIPERBAIKI
-// ============================================
-function getParentHeaderName(subHeaderTh) {
-    const table = document.getElementById('testingTable');
-    const mainHeaderRow = table.querySelector('thead tr:first-child');
-    
-    if (!mainHeaderRow) return '';
-    
-    const mainHeaders = Array.from(mainHeaderRow.querySelectorAll('th'));
-    let currentCol = 0;
-    
-    for (const mainHeader of mainHeaders) {
-        const colspan = parseInt(mainHeader.getAttribute('colspan') || '1');
-        
-        // Check if this main header covers the sub-header
-        const subHeaderRow = subHeaderTh.closest('tr');
-        const subHeaders = Array.from(subHeaderRow.querySelectorAll('th'));
-        const subIndex = subHeaders.indexOf(subHeaderTh);
-        
-        if (subIndex >= currentCol && subIndex < currentCol + colspan) {
-            return mainHeader.textContent.trim();
-        }
-        
-        currentCol += colspan;
-    }
-    
-    return '';
-}
-
-function getAllSubColumnsUnderHeader(mainHeaderTh) {
-    const result = [];
-    const table = document.getElementById('testingTable');
-    const subHeaderRow = table.querySelector('thead tr:nth-child(2)');
-    if (!subHeaderRow) return result;
-    
-    const subHeaders = Array.from(subHeaderRow.querySelectorAll('th'));
-    const mainHeaders = Array.from(mainHeaderTh.closest('tr').querySelectorAll('th'));
-    const mainIndex = mainHeaders.indexOf(mainHeaderTh);
-    
-    let startCol = 0;
-    for (let i = 0; i < mainIndex; i++) {
-        const colspan = parseInt(mainHeaders[i].getAttribute('colspan') || '1');
-        startCol += colspan;
-    }
-    
-    const colspan = parseInt(mainHeaderTh.getAttribute('colspan') || '1');
-    const endCol = startCol + colspan;
-    
-    for (let i = startCol; i < endCol; i++) {
-        if (i < subHeaders.length) {
-            const subHeader = subHeaders[i];
-            const globalIndex = parseInt(subHeader.getAttribute('data-global-index'));
-            
-            result.push({
-                element: subHeader,
-                globalIndex: globalIndex,
-                name: subHeader.textContent.trim(),
-                parentName: mainHeaderTh.textContent.trim()
-            });
-        }
-    }
-    
-    return result;
-}
-
-// ============================================
-// COLUMN INFO - DIPERBAIKI
+// COLUMN INFO
 // ============================================
 function updateColumnInfo(td) {
     const columnName = td.getAttribute('data-column-name') || '-';
@@ -775,7 +968,6 @@ function updateColumnInfo(td) {
     const usl = td.getAttribute('data-usl') || '-';
     const unit = td.getAttribute('data-unit') || '';
     
-    // Format LSL and USL with unit
     let lslDisplay = '-';
     let uslDisplay = '-';
     
@@ -787,20 +979,17 @@ function updateColumnInfo(td) {
         uslDisplay = unit ? `${usl} ${unit}` : usl;
     }
     
-    // Update 3 fields: Column, LSL, USL
     document.getElementById('columnName').textContent = columnName;
     document.getElementById('columnLSL').textContent = lslDisplay;
     document.getElementById('columnUSL').textContent = uslDisplay;
 }
 
 function updateColumnInfoFromHeader(th) {
-    // Gunakan nama lengkap dari header
     const columnName = th.textContent.trim();
     const lsl = th.getAttribute('data-lsl') || '-';
     const usl = th.getAttribute('data-usl') || '-';
     const unit = th.getAttribute('data-unit') || '';
     
-    // Format LSL and USL with unit
     let lslDisplay = '-';
     let uslDisplay = '-';
     
@@ -812,7 +1001,6 @@ function updateColumnInfoFromHeader(th) {
         uslDisplay = unit ? `${usl} ${unit}` : usl;
     }
     
-    // Update 3 fields: Column, LSL, USL
     document.getElementById('columnName').textContent = columnName;
     document.getElementById('columnLSL').textContent = lslDisplay;
     document.getElementById('columnUSL').textContent = uslDisplay;
@@ -843,7 +1031,7 @@ function updateSelectionInfo(message) {
 // MODAL CLOSE EVENTS SETUP
 // ============================================
 function setupModalCloseEvents() {
-    const modals = ['modalError', 'modalSuccess', 'modalConfirm'];
+    const modals = ['modalError', 'modalSuccess', 'modalConfirm', 'modalAfterSubmit', 'modalNavigationWarning'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -852,6 +1040,11 @@ function setupModalCloseEvents() {
                     if (modalId === 'modalError') closeErrorModal(e);
                     else if (modalId === 'modalSuccess') closeSuccessModal(e);
                     else if (modalId === 'modalConfirm') closeConfirmModal(e);
+                    else if (modalId === 'modalNavigationWarning') {
+                        modal.classList.remove("active");
+                        navigationWarningActive = false;
+                        navigationTarget = null;
+                    }
                 }
             });
         }
@@ -861,7 +1054,7 @@ function setupModalCloseEvents() {
 }
 
 // ============================================
-// LOAD PRODUCTS (sama seperti sebelumnya)
+// LOAD PRODUCTS
 // ============================================
 async function loadProducts() {
     try {
@@ -883,7 +1076,7 @@ async function loadProducts() {
 }
 
 // ============================================
-// CUSTOM DROPDOWN FUNCTIONS (sama seperti sebelumnya)
+// CUSTOM DROPDOWN FUNCTIONS
 // ============================================
 function populateProductDropdown() {
     const input = document.getElementById("selectProduct");
@@ -1239,25 +1432,18 @@ function setupEventListeners() {
         if (btnCancelTest) btnCancelTest.addEventListener("click", confirmCancelTest);
         if (btnSubmitTest) btnSubmitTest.addEventListener("click", submitTestResults);
 
-        const testInfoInputs = [
-            "inputTesterName", "inputTestDate", "inputPONumber", "inputLotNumber",
-            "inputSerialNumber", "inputQty", "inputMultimeterSN", "inputOscilloscopeSN"
-        ];
-        
-        testInfoInputs.forEach(inputId => {
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.addEventListener('focus', () => {
-                    console.log(`Input ${inputId} mendapat fokus`);
-                });
-            }
-        });
-
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
                 closeErrorModal();
                 closeSuccessModal();
                 closeConfirmModal();
+                
+                const navModal = document.getElementById("modalNavigationWarning");
+                if (navModal && navModal.classList.contains("active")) {
+                    navModal.classList.remove("active");
+                    navigationWarningActive = false;
+                    navigationTarget = null;
+                }
             }
         });
 
@@ -1594,6 +1780,9 @@ function startTesting() {
     document.getElementById("testingSection").classList.remove("hidden");
     testingInProgress = true;
 
+    // Initialize navigation lock
+    initNavigationLock();
+
     displayTestInformation();
     displayTestParameters();
     generateTestingTable();
@@ -1654,7 +1843,7 @@ function displayTestInformation() {
 }
 
 // ============================================
-// GENERATE TESTING TABLE - DIPERBAIKI
+// GENERATE TESTING TABLE
 // ============================================
 function generateTestingTable() {
     if (!templateData || !templateData.custom_columns) {
@@ -1687,7 +1876,6 @@ function generateTestingTable() {
     const headerRow2 = document.createElement("tr");
     let hasSubColumns = false;
 
-    // Default columns
     const defaultHeaders = [
         { name: "NO", rowspan: 2 },
         { name: "SERIAL NO.", rowspan: 2 }
@@ -1702,16 +1890,14 @@ function generateTestingTable() {
 
     let globalColumnIndex = 2;
     
-    // Custom columns - PASTIKAN NAMA LENGKAP
     customColumns.forEach((col, index) => {
-        // Gunakan nama lengkap dari template
         const fullName = col.name || "";
         
         if (col.isSplit && col.sub && col.sub.length > 0) {
             hasSubColumns = true;
             const th = document.createElement("th");
             th.colSpan = col.sub.length;
-            th.textContent = fullName; // Nama lengkap
+            th.textContent = fullName;
             th.setAttribute("data-global-start", globalColumnIndex);
             th.setAttribute("data-colspan", col.sub.length);
             headerRow1.appendChild(th);
@@ -1719,7 +1905,7 @@ function generateTestingTable() {
             col.sub.forEach((subCol, subIndex) => {
                 const subTh = document.createElement("th");
                 subTh.className = "sub-header";
-                subTh.textContent = subCol.name || ""; // Nama lengkap
+                subTh.textContent = subCol.name || "";
 
                 subTh.setAttribute("data-lsl", subCol.lsl || "");
                 subTh.setAttribute("data-usl", subCol.usl || "");
@@ -1740,7 +1926,7 @@ function generateTestingTable() {
         } else {
             const th = document.createElement("th");
             th.rowSpan = 2;
-            th.textContent = fullName; // Nama lengkap
+            th.textContent = fullName;
 
             th.setAttribute("data-lsl", col.lsl || "");
             th.setAttribute("data-usl", col.usl || "");
@@ -1823,7 +2009,6 @@ function generateTableRow(columns, rowNumber) {
                 const td = document.createElement("td");
                 td.setAttribute("data-global-index", globalColumnIndex);
                 
-                // Simpan nama lengkap sub-column
                 td.setAttribute('data-column-name', subCol.name || `Sub-${subIndex + 1}`);
                 td.setAttribute('data-lsl', subCol.lsl || '');
                 td.setAttribute('data-usl', subCol.usl || '');
@@ -1865,7 +2050,6 @@ function generateTableRow(columns, rowNumber) {
             const td = document.createElement("td");
             td.setAttribute("data-global-index", globalColumnIndex);
             
-            // Simpan nama lengkap kolom
             td.setAttribute('data-column-name', col.name || "");
             td.setAttribute('data-lsl', col.lsl || "");
             td.setAttribute('data-usl', col.usl || "");
@@ -2099,7 +2283,10 @@ async function submitTestResults() {
 
                 if (result.success) {
                     testingInProgress = false;
-                    showSuccessModal(`Data testing berhasil disubmit!\n\n Pass: ${passCount} | Fail: ${failCount}`);
+                    cleanupNavigationLock();
+                    
+                    showAfterSubmitOptions(passCount, failCount);
+                    
                 } else {
                     console.error('❌ Error dari backend:', result.error);
                     showErrorModal("Gagal submit: " + result.error);
@@ -2113,6 +2300,99 @@ async function submitTestResults() {
 }
 
 // ============================================
+// MODAL AFTER SUBMIT FUNCTIONS
+// ============================================
+function showAfterSubmitOptions(passCount, failCount) {
+    const modal = document.getElementById("modalAfterSubmit");
+    const messageElement = modal.querySelector("p");
+    
+    if (messageElement) {
+        messageElement.textContent = `Testing submitted successfully!\nPass: ${passCount} | Fail: ${failCount}\n\nWhat would you like to do next?`;
+    }
+    
+    modal.classList.add("active");
+    setupAfterSubmitModalHandlers();
+}
+
+function closeAfterSubmitModal() {
+    const modal = document.getElementById("modalAfterSubmit");
+    if (modal) modal.classList.remove("active");
+}
+
+function setupAfterSubmitModalHandlers() {
+    const modal = document.getElementById("modalAfterSubmit");
+    if (!modal) return;
+    
+    const buttons = ['btnNewPO', 'btnNewLot', 'btnNewDevice'];
+    
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        }
+    });
+    
+    document.getElementById("btnNewPO")?.addEventListener("click", handleNewPO);
+    document.getElementById("btnNewLot")?.addEventListener("click", handleNewLot);
+    document.getElementById("btnNewDevice")?.addEventListener("click", handleNewDevice);
+}
+
+function handleNewPO() {
+    console.log("New PO selected");
+    closeAfterSubmitModal();
+    
+    document.getElementById("inputPONumber").value = "";
+    document.getElementById("inputTestDate").value = new Date().toISOString().split("T")[0];
+    document.getElementById("inputLotNumber").value = "";
+    document.getElementById("inputSerialNumber").value = "";
+    document.getElementById("inputQty").value = "1";
+    document.getElementById("inputMultimeterSN").value = "";
+    document.getElementById("inputOscilloscopeSN").value = "";
+    
+    updateSerialRangeDisplay();
+    
+    document.getElementById("testingSection").classList.add("hidden");
+    document.getElementById("setupSection").classList.remove("hidden");
+    document.getElementById("testInfoSection").classList.remove("hidden");
+    
+    setTimeout(() => {
+        document.getElementById("inputPONumber").focus();
+    }, 100);
+}
+
+function handleNewLot() {
+    console.log("New Lot selected");
+    closeAfterSubmitModal();
+    
+    document.getElementById("inputLotNumber").value = "";
+    document.getElementById("inputSerialNumber").value = "";
+    document.getElementById("inputQty").value = "1";
+    document.getElementById("inputTestDate").value = new Date().toISOString().split("T")[0];
+    
+    updateSerialRangeDisplay();
+    
+    document.getElementById("testingSection").classList.add("hidden");
+    document.getElementById("setupSection").classList.remove("hidden");
+    document.getElementById("testInfoSection").classList.remove("hidden");
+    
+    setTimeout(() => {
+        document.getElementById("inputLotNumber").focus();
+    }, 100);
+}
+
+function handleNewDevice() {
+    console.log("New Device selected");
+    closeAfterSubmitModal();
+    
+    resetTestingData();
+    
+    setTimeout(() => {
+        document.getElementById("selectSeries").focus();
+    }, 100);
+}
+
+// ============================================
 // CANCEL TEST
 // ============================================
 function confirmCancelTest() {
@@ -2121,7 +2401,7 @@ function confirmCancelTest() {
         "Yakin ingin membatalkan? Semua data testing akan hilang permanen.",
         () => {
             testingInProgress = false;
-            location.reload();
+            resetTestingData();
         }
     );
 }

@@ -51,7 +51,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getCompletedTestsByProduct: (productId) => ipcRenderer.invoke('get-completed-tests-by-product', productId),
   checkPreviousTest: (data) => ipcRenderer.invoke('check-previous-test', data),
   submitTestEntries: (submitData) => ipcRenderer.invoke('submit-test-entries', submitData), // ← HANYA INI SATU
-  
+
   // ============================================
   // RETEST API (ADMIN ONLY)
   // ============================================
@@ -63,6 +63,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDBError: (callback) => ipcRenderer.on('db-error', (_event, message) => callback(message)),
   onDBSuccess: (callback) => ipcRenderer.on('db-success', (_event, message) => callback(message)),
   onPageLoaded: (callback) => ipcRenderer.on('page-loaded', (_event, pageName) => callback(pageName)),
+
+  // ============================================
+  // WINDOW MANAGEMENT API
+  // ============================================
+  closeWindow: () => ipcRenderer.send('close-window'),
+  onCloseWarning: (callback) => {
+    ipcRenderer.on('check-before-close', () => {
+      const shouldPreventClose = callback();
+      if (shouldPreventClose) {
+        ipcRenderer.send('close-window-cancelled');
+      } else {
+        ipcRenderer.send('close-window-confirmed');
+      }
+    });
+  },
 });
 
 console.log('🔌 Preload script loaded - electronAPI exposed with new product management APIs');

@@ -6,7 +6,7 @@ function connectToDatabase() {
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'testing_db',
+    database: 'db_analytical',
     connectTimeout: 10000,
     acquireTimeout: 10000,
     timeout: 10000,

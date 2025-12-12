@@ -35,6 +35,37 @@ const createWindow = () => {
     win.webContents.send('page-loaded', pageName);
   });
 
+
+  win.on('close', (event) => {
+    // Kirim event ke renderer untuk memeriksa apakah testing berjalan
+    win.webContents.send('check-before-close');
+
+    // Mencegah penutupan sementara
+    event.preventDefault();
+
+    // Setup timeout untuk safety
+    const closeTimeout = setTimeout(() => {
+      console.log('Close request timeout, allowing close');
+      win.destroy();
+    }, 5000);
+
+    // Handler untuk menerima respon dari renderer
+    ipcMain.once('close-window-confirmed', () => {
+      clearTimeout(closeTimeout);
+      win.destroy();
+    });
+
+    ipcMain.once('close-window-cancelled', () => {
+      clearTimeout(closeTimeout);
+      console.log('Window close cancelled by user');
+    });
+  });
+
+  ipcMain.on('close-window', () => {
+    if (win) {
+      win.destroy();
+    }
+  });
   // ============================================
   // 🎯 FIXED NAVIGATION HANDLER
   // ============================================
@@ -43,20 +74,20 @@ const createWindow = () => {
       // Normalize paths for comparison (handle \ and /)
       const normalizedNewPath = pagePath.replace(/\\/g, '/');
       const normalizedCurrentPath = currentFilePath.replace(/\\/g, '/');
-      
+
       // 🎯 Check if trying to navigate to the same file
       if (normalizedCurrentPath === normalizedNewPath) {
         console.log(`ℹ️ Already on ${pagePath}, skipping reload`);
         return; // Skip reload - no flickering!
       }
-      
+
       // Navigate to new page
       const fullPath = path.join(__dirname, pagePath);
       console.log(`📄 Navigating from ${currentFilePath} to ${pagePath}`);
-      
+
       // Update current path BEFORE loading
       currentFilePath = pagePath;
-      
+
       win.loadFile(fullPath);
     } catch (error) {
       console.error('❌ Navigation error:', error);
@@ -118,21 +149,21 @@ const createWindow = () => {
 };
 
 ipcMain.on('Testing', (event, data) => {
-    console.log('Navigation to Testing:', data);
-    win.loadFile('Page/Testing.html')
-      .then(() => {
-        console.log('✅ Testing page loaded successfully');
-      })
-      .catch((err) => {
-        console.error('❌ Error loading Testing page:', err);
-      });
-  });
+  console.log('Navigation to Testing:', data);
+  win.loadFile('Page/Testing.html')
+    .then(() => {
+      console.log('✅ Testing page loaded successfully');
+    })
+    .catch((err) => {
+      console.error('❌ Error loading Testing page:', err);
+    });
+});
 
 app.whenReady().then(async () => {
   try {
     console.log('🔄 Connecting to database...');
     db = connectToDatabase();
-    
+
     // Tunggu koneksi database siap
     await new Promise((resolve, reject) => {
       db.promise().query('SELECT 1')
@@ -142,17 +173,17 @@ app.whenReady().then(async () => {
         })
         .catch(reject);
     });
-    
+
     // Daftarkan handlers (sudah include data entry handlers)
     console.log('📋 Registering database handlers...');
     registerDatabaseHandlers(db);
-    
+
     // Buat window
     console.log('🚀 Creating main window...');
     createWindow();
-    
+
     console.log('🎉 App started successfully!');
-    
+
   } catch (error) {
     console.error('❌ Failed to start app:', error);
     app.quit();

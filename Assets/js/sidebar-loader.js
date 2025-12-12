@@ -1,5 +1,13 @@
 // sidebar-loader.js
 
+// Navigation lock system
+window.navigationLock = {
+    isTestingInProgress: false,
+    setTestingInProgress: function(status) {
+        this.isTestingInProgress = status;
+    }
+};
+
 const SidebarLoader = {
   sidebarPath: "./Components/sidebar.html",
   currentActivePage: "dashboard",
@@ -176,6 +184,18 @@ setupDropdown() {
     };
 
     const pagePath = pageMap[pageName.toLowerCase()];
+
+    // Cek jika testing sedang berjalan
+    if (window.navigationLock && window.navigationLock.isTestingInProgress) {
+        console.log('❌ Navigation blocked: Testing in progress');
+
+        const event = new CustomEvent('navigationAttempt', { 
+            detail: { pageName } 
+        });
+        document.dispatchEvent(event);
+        
+        return; // Hentikan navigasi
+    }
 
     if (!pagePath) {
       console.error(`❌ Page not found in pageMap: ${pageName}`);
