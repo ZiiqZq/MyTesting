@@ -817,19 +817,19 @@
 
     /* Warning button style */
     .btn-warning {
-        background-color: #f59e0b;
-        color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
+      background-color: #f59e0b;
+      color: white;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
     }
 
     .btn-warning:hover {
-        background-color: #d97706;
+      background-color: #d97706;
     }
 
     .modal-content button.selected-option {
@@ -1372,31 +1372,31 @@
   </div>
 
   <!-- Navigation Warning Modal -->
-<div id="modalNavigationWarning" class="modal">
+  <div id="modalNavigationWarning" class="modal">
     <div class="modal-content">
-        <div class="flex items-center mb-3">
-            <div class="bg-yellow-100 p-2 rounded-full mr-3">
-                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z">
-                    </path>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold text-gray-800">Testing in Progress</h3>
+      <div class="flex items-center mb-3">
+        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z">
+            </path>
+          </svg>
         </div>
-        <p class="text-sm text-gray-600 mb-6">
-            Testing sedang berjalan. Semua data testing akan hilang jika Anda meninggalkan halaman ini.
-        </p>
-        <div class="flex gap-3 justify-end">
-            <button id="btnCancelNavigation" class="btn-gray">
-                Batal
-            </button>
-            <button id="btnConfirmNavigation" class="btn-danger">
-                Keluar
-            </button>
-        </div>
+        <h3 class="text-lg font-bold text-gray-800">Testing in Progress</h3>
+      </div>
+      <p class="text-sm text-gray-600 mb-6">
+        Testing sedang berjalan. Semua data testing akan hilang jika Anda meninggalkan halaman ini.
+      </p>
+      <div class="flex gap-3 justify-end">
+        <button id="btnCancelNavigation" class="btn-gray">
+          Batal
+        </button>
+        <button id="btnConfirmNavigation" class="btn-danger">
+          Keluar
+        </button>
+      </div>
     </div>
-</div>
+  </div>
 
   <!-- Confirmation Modal -->
   <div id="modalConfirm" class="modal">
@@ -1463,23 +1463,26 @@
         <h3 class="text-lg font-bold text-gray-800">Testing Submitted Successfully</h3>
       </div>
       <p class="text-sm text-gray-600 mb-6">What would you like to do next?</p>
-      
+
       <div class="space-y-3 mb-6">
-        <button id="btnNewPO" class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <button id="btnNewPO"
+          class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
           <div class="font-semibold text-gray-800">New PO</div>
           <div class="text-xs text-gray-500 mt-1">
             Product, device, and test type remain the same. Only enter new PO, date, lot, SN, and Qty.
           </div>
         </button>
-        
-        <button id="btnNewLot" class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+
+        <button id="btnNewLot"
+          class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
           <div class="font-semibold text-gray-800">New Lot</div>
           <div class="text-xs text-gray-500 mt-1">
             Everything remains the same. Only change lot, SN, Qty, and date.
           </div>
         </button>
-        
-        <button id="btnNewDevice" class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+
+        <button id="btnNewDevice"
+          class="cursor-pointer w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
           <div class="font-semibold text-gray-800">New Device</div>
           <div class="text-xs text-gray-500 mt-1">
             Return to testing setup to select new device.

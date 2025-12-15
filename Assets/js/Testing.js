@@ -29,27 +29,27 @@ let navigationTarget = null;
 // ============================================
 function initNavigationLock() {
     console.log("Initializing navigation lock...");
-    
+
     // Event listener untuk sebelum window ditutup
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     // Event listener untuk menangkap klik navigasi di sidebar
     setupSidebarNavigationLock();
-    
+
     // Setup Electron close event
     setupElectronCloseHandler();
 }
 
 function cleanupNavigationLock() {
     console.log("Cleaning up navigation lock...");
-    
+
     window.removeEventListener('beforeunload', handleBeforeUnload);
     removeSidebarNavigationLock();
-    
+
     if (window.electronAPI && window.electronAPI.removeAllListeners) {
         window.electronAPI.removeAllListeners('close-warning');
     }
-    
+
     navigationWarningActive = false;
     navigationTarget = null;
 }
@@ -58,7 +58,7 @@ function handleBeforeUnload(event) {
     if (testingInProgress) {
         event.preventDefault();
         event.returnValue = 'Testing sedang berjalan! Semua data akan hilang jika Anda meninggalkan halaman.';
-        
+
         // Jika Electron API tersedia, gunakan modal custom
         if (window.electronAPI) {
             showNavigationWarningModal('leave');
@@ -69,7 +69,7 @@ function handleBeforeUnload(event) {
 
 function setupSidebarNavigationLock() {
     console.log("Setting up sidebar navigation lock...");
-    
+
     // Tangkap semua klik pada sidebar dan dropdown
     document.addEventListener('click', handleNavigationClick, true);
 }
@@ -80,40 +80,40 @@ function removeSidebarNavigationLock() {
 
 function handleNavigationClick(event) {
     if (!testingInProgress) return;
-    
+
     const target = event.target.closest('[data-page], .sidebar-btn, .dropdown-item, .dropdown-item button');
-    
+
     if (target) {
         // Cek jika ini adalah elemen navigasi
         const dataPage = target.getAttribute('data-page');
         const isSidebarBtn = target.classList.contains('sidebar-btn');
         const isDropdownItem = target.classList.contains('dropdown-item');
         const isDropdownBtn = target.closest('.dropdown-item') && target.tagName === 'BUTTON';
-        
+
         const isNavigationElement = dataPage || isSidebarBtn || isDropdownItem || isDropdownBtn;
-        
+
         if (isNavigationElement && !target.closest('#modalNavigationWarning')) {
             event.preventDefault();
             event.stopPropagation();
-            
+
             // Dapatkan nama halaman target
             let pageName = dataPage;
             if (!pageName && (isDropdownItem || isDropdownBtn)) {
                 // Coba dapatkan dari teks atau atribut lain
                 const pageElement = isDropdownItem ? target : target.closest('.dropdown-item');
                 if (pageElement) {
-                    pageName = pageElement.getAttribute('data-page') || 
-                               pageElement.textContent.trim().toLowerCase().replace(/\s+/g, '');
+                    pageName = pageElement.getAttribute('data-page') ||
+                        pageElement.textContent.trim().toLowerCase().replace(/\s+/g, '');
                 }
             }
-            
+
             if (pageName) {
                 // Simpan target navigasi untuk digunakan nanti
                 navigationTarget = {
                     element: target,
                     page: pageName
                 };
-                
+
                 // Tampilkan warning modal
                 showNavigationWarningModal('navigate');
             }
@@ -135,21 +135,21 @@ function setupElectronCloseHandler() {
 
 function showNavigationWarningModal(type) {
     if (navigationWarningActive) return;
-    
+
     navigationWarningActive = true;
-    
+
     const modal = document.getElementById('modalNavigationWarning');
     const title = modal.querySelector('h3');
     const message = modal.querySelector('p');
     const cancelBtn = document.getElementById('btnCancelNavigation');
     const confirmBtn = document.getElementById('btnConfirmNavigation');
-    
+
     if (!modal || !title || !message || !cancelBtn || !confirmBtn) {
         console.error('Modal navigation warning elements not found');
         navigationWarningActive = false;
         return;
     }
-    
+
     if (type === 'leave') {
         title.textContent = 'Keluar dari Testing';
         message.textContent = 'Testing sedang berjalan. Semua data testing akan hilang jika Anda meninggalkan halaman. Yakin ingin keluar?';
@@ -159,25 +159,25 @@ function showNavigationWarningModal(type) {
         message.textContent = 'Testing sedang berjalan. Semua data testing akan hilang jika Anda pindah halaman. Yakin ingin pindah?';
         confirmBtn.textContent = 'Pindah';
     }
-    
+
     // Clone buttons untuk menghindari duplicate event listeners
     const newCancelBtn = cancelBtn.cloneNode(true);
     const newConfirmBtn = confirmBtn.cloneNode(true);
-    
+
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    
+
     // Setup event listeners baru
     newCancelBtn.addEventListener('click', () => {
         modal.classList.remove('active');
         navigationWarningActive = false;
         navigationTarget = null;
     });
-    
+
     newConfirmBtn.addEventListener('click', () => {
         modal.classList.remove('active');
         navigationWarningActive = false;
-        
+
         if (type === 'leave') {
             // Tutup aplikasi melalui Electron API
             resetTestingData();
@@ -187,7 +187,7 @@ function showNavigationWarningModal(type) {
         } else if (type === 'navigate' && navigationTarget) {
             // Reset semua data testing
             resetTestingData();
-            
+
             // Lakukan navigasi
             if (navigationTarget.page) {
                 const pageMap = {
@@ -203,7 +203,7 @@ function showNavigationWarningModal(type) {
                     'manageproduct': 'Manage.html',
                     'generatecolumn': 'Generate.html'
                 };
-                
+
                 const pageFile = pageMap[navigationTarget.page.toLowerCase()];
                 if (pageFile && window.electronAPI && window.electronAPI.navigateTo) {
                     window.electronAPI.navigateTo(`Page/${pageFile}`);
@@ -213,9 +213,9 @@ function showNavigationWarningModal(type) {
             }
         }
     });
-    
+
     modal.classList.add('active');
-    
+
     // Close modal ketika klik di luar
     const closeModalOnOutsideClick = (e) => {
         if (e.target === modal) {
@@ -225,9 +225,9 @@ function showNavigationWarningModal(type) {
             modal.removeEventListener('click', closeModalOnOutsideClick);
         }
     };
-    
+
     modal.addEventListener('click', closeModalOnOutsideClick);
-    
+
     // Close modal dengan Escape key
     const closeModalOnEscape = (e) => {
         if (e.key === 'Escape' && modal.classList.contains('active')) {
@@ -237,13 +237,13 @@ function showNavigationWarningModal(type) {
             document.removeEventListener('keydown', closeModalOnEscape);
         }
     };
-    
+
     document.addEventListener('keydown', closeModalOnEscape);
 }
 
 function resetTestingData() {
     console.log('Resetting all testing data...');
-    
+
     // Reset semua state variables
     selectedProduct = null;
     selectedTestType = null;
@@ -255,11 +255,11 @@ function resetTestingData() {
     selectedCells.clear();
     selectionStartCell = null;
     headerColumnMap.clear();
-    
+
     // Reset UI ke state awal
     document.getElementById("setupSection").classList.remove("hidden");
     document.getElementById("testingSection").classList.add("hidden");
-    
+
     // Reset semua input fields
     const resetFields = {
         "selectProduct": "",
@@ -273,7 +273,7 @@ function resetTestingData() {
         "inputMultimeterSN": "",
         "inputOscilloscopeSN": ""
     };
-    
+
     Object.entries(resetFields).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
@@ -281,37 +281,37 @@ function resetTestingData() {
             element.classList.remove('invalid');
         }
     });
-    
+
     // Sembunyikan semua section
     ["seriesContainer", "testTypeSection", "testInfoSection"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add("hidden");
     });
-    
+
     // Kosongkan dropdowns
     const productDropdown = document.getElementById("productDropdown");
     const seriesDropdown = document.getElementById("seriesDropdown");
     if (productDropdown) productDropdown.innerHTML = "";
     if (seriesDropdown) seriesDropdown.innerHTML = "";
-    
+
     document.getElementById("testTypeList").innerHTML = "";
     document.getElementById("testParametersDisplay").innerHTML = "";
-    
+
     // Reset table
     const thead = document.getElementById("testingTableHead");
     const tbody = document.getElementById("testingTableBody");
     if (thead) thead.innerHTML = "";
     if (tbody) tbody.innerHTML = "";
-    
+
     // Reset serial display
     updateSerialRangeDisplay();
-    
+
     // Cleanup selection features
     clearSelection();
-    
+
     // Cleanup navigation lock
     cleanupNavigationLock();
-    
+
     console.log('Testing data reset complete');
 }
 
@@ -320,21 +320,21 @@ function resetTestingData() {
 // ============================================
 function resetSeriesAndBelow() {
     console.log("Resetting series and below...");
-    
+
     ["seriesContainer", "testTypeSection", "testInfoSection"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add("hidden");
     });
-    
+
     selectedTestType = null;
     templateData = null;
     testParameters = [];
     productSeries = [];
     headerColumnMap.clear();
-    
+
     document.getElementById("testTypeList").innerHTML = "";
     document.getElementById("testParametersDisplay").innerHTML = "";
-    
+
     const seriesInput = document.getElementById("selectSeries");
     if (seriesInput) {
         seriesInput.value = "";
@@ -349,20 +349,20 @@ function resetSeriesAndBelow() {
 
 function resetTestTypeAndBelow() {
     console.log("Resetting test type and below...");
-    
+
     ["testTypeSection", "testInfoSection"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add("hidden");
     });
-    
+
     selectedTestType = null;
     templateData = null;
     testParameters = [];
     headerColumnMap.clear();
-    
+
     document.getElementById("testTypeList").innerHTML = "";
     document.getElementById("testParametersDisplay").innerHTML = "";
-    
+
     const testInfoInputs = {
         "inputTesterName": "",
         "inputTestDate": new Date().toISOString().split("T")[0],
@@ -373,12 +373,12 @@ function resetTestTypeAndBelow() {
         "inputMultimeterSN": "",
         "inputOscilloscopeSN": ""
     };
-    
+
     Object.entries(testInfoInputs).forEach(([id, value]) => {
         const input = document.getElementById(id);
         if (input) input.value = value;
     });
-    
+
     updateSerialRangeDisplay();
 }
 
@@ -424,28 +424,28 @@ function showConfirmModal(title, message, onConfirm) {
     const confirmTitle = document.getElementById("confirmTitle");
     const confirmMessage = document.getElementById("confirmMessage");
     const modal = document.getElementById("modalConfirm");
-    
+
     if (!confirmTitle || !confirmMessage || !modal) return;
-    
+
     confirmTitle.textContent = title;
     confirmMessage.textContent = message;
     modal.classList.add("active");
-    
+
     const btnYes = document.getElementById("btnConfirmYes");
     const btnNo = document.getElementById("btnConfirmNo");
-    
+
     if (btnYes && btnNo) {
         const newBtnYes = btnYes.cloneNode(true);
         const newBtnNo = btnNo.cloneNode(true);
-        
+
         btnYes.parentNode.replaceChild(newBtnYes, btnYes);
         btnNo.parentNode.replaceChild(newBtnNo, btnNo);
-        
+
         newBtnYes.addEventListener("click", () => {
             modal.classList.remove("active");
             onConfirm();
         });
-        
+
         newBtnNo.addEventListener("click", () => {
             modal.classList.remove("active");
         });
@@ -462,7 +462,7 @@ function setupSuccessModalClose() {
             location.reload();
         });
     }
-    
+
     const modalSuccess = document.getElementById("modalSuccess");
     if (modalSuccess) {
         modalSuccess.addEventListener("click", (e) => {
@@ -498,17 +498,17 @@ function updateSerialRangeDisplay() {
     const serialInput = document.getElementById("inputSerialNumber");
     const qtyInput = document.getElementById("inputQty");
     const display = document.getElementById("serialRangeDisplay");
-    
+
     if (!serialInput || !qtyInput || !display) return;
-    
+
     const startSerial = serialInput.value.trim();
     const qty = parseInt(qtyInput.value) || 1;
-    
+
     if (!startSerial || !qty) {
         display.textContent = "";
         return;
     }
-    
+
     const numericPart = parseInt(startSerial) || 0;
     const endSerial = numericPart + qty - 1;
     display.innerHTML = `<strong>Range :</strong> ${numericPart} - ${endSerial}`;
@@ -519,16 +519,16 @@ function updateSerialRangeDisplay() {
 // ============================================
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Halaman Testing Dimuat");
-    
+
     const testDateInput = document.getElementById("inputTestDate");
     if (testDateInput) {
         testDateInput.value = new Date().toISOString().split("T")[0];
     }
-    
+
     await loadProducts();
     setupEventListeners();
     setupModalCloseEvents();
-    
+
     // Setup untuk modal after submit
     setupAfterSubmitModalHandlers();
 });
@@ -539,21 +539,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 function initSelectionFeatures() {
     setupKeyboardEvents();
     setupSelectionToolbarButtons();
-    
+
     setTimeout(() => {
         setupTableSelectionEvents();
         setupHeaderColumnMapping();
     }, 100);
-    
+
     document.addEventListener('click', (e) => {
         const table = document.getElementById('testingTable');
         const toolbar = document.querySelector('.table-toolbar');
         const leftPanel = document.querySelector('.left-panel');
-        
-        if (!table?.contains(e.target) && 
-            !toolbar?.contains(e.target) && 
+
+        if (!table?.contains(e.target) &&
+            !toolbar?.contains(e.target) &&
             !leftPanel?.contains(e.target)) {
-            if (!e.target.closest('.modal') && 
+            if (!e.target.closest('.modal') &&
                 !e.target.closest('.custom-dropdown-menu') &&
                 !e.target.closest('.action-buttons')) {
                 clearSelection();
@@ -566,10 +566,10 @@ function setupHeaderColumnMapping() {
     headerColumnMap.clear();
     const table = document.getElementById('testingTable');
     if (!table) return;
-    
+
     const thead = table.querySelector('thead');
     if (!thead) return;
-    
+
     const headers = thead.querySelectorAll('th');
     headers.forEach(header => {
         const globalIndex = header.getAttribute('data-global-index');
@@ -589,13 +589,13 @@ function setupKeyboardEvents() {
     document.addEventListener('keydown', (e) => {
         isShiftPressed = e.shiftKey;
         isCtrlPressed = e.ctrlKey || e.metaKey;
-        
+
         if (e.key === 'Escape') clearSelection();
         if (isCtrlPressed && e.key === 'a') {
             e.preventDefault();
             selectAllEditableCells();
         }
-        
+
         if (selectedCells.size > 0 && !e.ctrlKey && !e.metaKey && !e.altKey) {
             if (e.key.length === 1 || ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 const firstCell = getFirstSelectedCell();
@@ -620,7 +620,7 @@ function setupKeyboardEvents() {
             }
         }
     });
-    
+
     document.addEventListener('keyup', (e) => {
         isShiftPressed = e.shiftKey;
         isCtrlPressed = e.ctrlKey || e.metaKey;
@@ -630,7 +630,7 @@ function setupKeyboardEvents() {
 function setupSelectionToolbarButtons() {
     const selectAllBtn = document.getElementById('btnSelectAll');
     const clearBtn = document.getElementById('btnClearSelection');
-    
+
     if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllEditableCells);
     if (clearBtn) clearBtn.addEventListener('click', clearSelection);
 }
@@ -638,31 +638,72 @@ function setupSelectionToolbarButtons() {
 function setupTableSelectionEvents() {
     const table = document.getElementById('testingTable');
     if (!table) return;
-    
+
     const tbody = table.querySelector('tbody');
     const thead = table.querySelector('thead');
-    
+
     if (tbody) {
         tbody.addEventListener('click', handleCellClick);
         tbody.addEventListener('focusin', handleCellFocus, true);
         tbody.addEventListener('input', handleCellInput);
         tbody.addEventListener('keydown', handleCellKeyDown);
     }
-    
+
     if (thead) {
         thead.addEventListener('click', handleHeaderClick);
-    }
-}
 
+        // Tambahkan visual feedback untuk header yang bisa diklik
+        thead.querySelectorAll('th[data-global-index]').forEach(th => {
+            if (parseInt(th.getAttribute('data-global-index')) >= 2) {
+                th.style.cursor = 'pointer';
+                th.title = 'Klik untuk memilih kolom ini';
+            }
+        });
+    }
+
+    // Global keyboard listener untuk menangani input saat kolom dipilih
+    document.addEventListener('keydown', (e) => {
+        // Jika tidak ada input yang aktif, tapi ada sel yang dipilih
+        if (!document.activeElement.matches('input, select') && selectedCells.size > 0) {
+            // Jika pengguna mengetik karakter langsung
+            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                // Cari sel pertama yang dipilih
+                const firstCell = getFirstSelectedCell();
+                if (firstCell) {
+                    const input = firstCell.querySelector('input, select');
+                    if (input) {
+                        e.preventDefault();
+                        input.focus();
+
+                        // Set nilai (untuk input kosong atau replace)
+                        if (input.type === 'text' || input.type === 'number') {
+                            input.value = e.key;
+                            input.setSelectionRange(1, 1);
+
+                            // Trigger input event
+                            const inputEvent = new Event('input', { bubbles: true });
+                            input.dispatchEvent(inputEvent);
+
+                            // Apply ke semua sel yang dipilih
+                            if (selectedCells.size > 1) {
+                                applyToSelectedCellsImmediate(input, e.key);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
 function handleCellClick(e) {
     const td = e.target.closest('td');
     if (!td) return;
-    
+
     const cellPos = getCellPosition(td);
     if (cellPos.col < 2) return;
-    
+
     td.classList.add('selectable');
-    
+
     if (isShiftPressed && selectionStartCell) {
         selectCellRange(selectionStartCell, cellPos);
     } else if (isCtrlPressed) {
@@ -672,15 +713,17 @@ function handleCellClick(e) {
         clearSelection();
         selectCell(cellPos.row, cellPos.col);
         selectionStartCell = cellPos;
-        
-        if (e.target.matches('input, select')) {
+
+        // Fokuskan input jika diklik langsung
+        const input = td.querySelector('input, select');
+        if (input) {
             setTimeout(() => {
-                const input = td.querySelector('input, select');
-                if (input) input.focus();
+                input.focus();
+                input.setSelectionRange(0, input.value.length);
             }, 10);
         }
     }
-    
+
     updateColumnInfo(td);
     updateSelectionInfo();
 }
@@ -688,7 +731,7 @@ function handleCellClick(e) {
 function handleCellFocus(e) {
     const input = e.target;
     if (!input.matches('input, select')) return;
-    
+
     const td = input.closest('td');
     if (td) updateColumnInfo(td);
 }
@@ -696,44 +739,185 @@ function handleCellFocus(e) {
 function handleCellInput(e) {
     const input = e.target;
     if (!input.matches('input, select')) return;
-    
-    if (selectedCells.size > 1) {
-        applyToSelectedCells(input);
-    }
+
+    // Debounce untuk mencegah multiple calls
+    clearTimeout(input._inputTimeout);
+    input._inputTimeout = setTimeout(() => {
+        if (selectedCells.size > 1) {
+            applyToSelectedCells(input);
+        }
+    }, 50);
 }
 
 function handleCellKeyDown(e) {
-    if (selectedCells.size > 0 && document.activeElement.matches('input, select')) {
-        if (!e.ctrlKey && !e.metaKey && !e.altKey && 
-            (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete')) {
-            setTimeout(() => {
-                applyToSelectedCells(document.activeElement);
-            }, 0);
-        }
+    const input = e.target;
+    if (!input.matches('input, select')) return;
+
+    // Simpan nilai lama
+    const oldValue = input.value;
+
+    // Tangkap semua tombol yang mengubah input
+    const isTypingKey = e.key.length === 1 ||
+        e.key === 'Backspace' ||
+        e.key === 'Delete' ||
+        e.key === 'Tab' ||
+        e.key === 'Enter';
+
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && isTypingKey) {
+        // Gunakan setTimeout untuk menunggu nilai berubah
+        setTimeout(() => {
+            const newValue = input.value;
+
+            // Jika nilai berubah atau tombol Backspace/Delete ditekan
+            if (newValue !== oldValue || e.key === 'Backspace' || e.key === 'Delete') {
+                // Terapkan ke semua sel yang dipilih (kecuali yang sedang aktif)
+                if (selectedCells.size > 1) {
+                    applyToSelectedCellsImmediate(input, newValue);
+                }
+            }
+        }, 0);
+    }
+}
+
+function applyToSelectedCellsImmediate(sourceInput, value) {
+    if (!sourceInput || selectedCells.size <= 1) return;
+
+    const inputType = sourceInput.tagName;
+    const isSelect = inputType === 'SELECT';
+
+    // Flag untuk mencegah event loop
+    if (sourceInput._applyingBatch) return;
+    sourceInput._applyingBatch = true;
+
+    try {
+        selectedCells.forEach(cellKey => {
+            const [row, col] = cellKey.split('-').map(Number);
+            const td = getCellByPosition(row, col);
+
+            if (td) {
+                const targetInput = td.querySelector('input, select');
+                if (targetInput && targetInput.tagName === inputType && targetInput !== sourceInput) {
+                    // Update nilai jika berbeda
+                    if (targetInput.value !== value) {
+                        targetInput.value = value;
+
+                        // Trigger events untuk validasi
+                        if (isSelect) {
+                            targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        } else {
+                            const inputEvent = new Event('input', { bubbles: true });
+                            targetInput.dispatchEvent(inputEvent);
+                        }
+
+                        // Update UI
+                        targetInput.classList.add('batch-updated');
+                        setTimeout(() => {
+                            targetInput.classList.remove('batch-updated');
+                        }, 100);
+                    }
+                }
+            }
+        });
+    } finally {
+        setTimeout(() => {
+            sourceInput._applyingBatch = false;
+        }, 10);
     }
 }
 
 function handleHeaderClick(e) {
     const th = e.target.closest('th');
     if (!th) return;
-    
+
     e.stopPropagation();
-    
+
     const globalIndex = parseInt(th.getAttribute('data-global-index'));
     if (isNaN(globalIndex) || globalIndex < 2) return;
-    
-    console.log(`Clicked header: ${th.textContent}, Global Index: ${globalIndex}, Type: ${th.classList.contains('sub-header') ? 'sub' : 'main'}`);
-    
+
+    console.log(`Clicked header: ${th.textContent}, Global Index: ${globalIndex}`);
+
     if (isShiftPressed && selectionStartCell) {
         const startCol = Math.min(selectionStartCell.col, globalIndex);
         const endCol = Math.max(selectionStartCell.col, globalIndex);
         selectColumnRange(startCol, endCol);
+
+        // Fokus ke sel pertama di kolom pertama range
+        setTimeout(() => focusFirstCellInColumn(startCol), 10);
     } else {
         selectColumn(globalIndex);
+
+        // Fokus ke sel pertama di kolom yang dipilih
+        setTimeout(() => focusFirstCellInColumn(globalIndex), 10);
     }
-    
+
     updateColumnInfoFromHeader(th);
     updateSelectionInfo();
+}
+
+
+function focusFirstCellInSelectedRange(startCol, endCol) {
+    if (startCol < 2) return;
+
+    const firstRow = 0;
+    const cellKey = `${firstRow}-${startCol}`;
+
+    if (selectedCells.has(cellKey)) {
+        const td = getCellByPosition(firstRow, startCol);
+        if (td) {
+            const input = td.querySelector('input, select');
+            if (input) {
+                setTimeout(() => {
+                    input.focus();
+
+                    if (input.tagName === 'SELECT') {
+                        input.focus();
+                    } else if (input.type === 'text' || input.type === 'number') {
+                        input.focus();
+                        input.setSelectionRange(input.value.length, input.value.length);
+                    }
+
+                    selectionStartCell = { row: firstRow, col: startCol };
+                }, 10);
+            }
+        }
+    }
+}
+
+function focusFirstCellInColumn(colIndex) {
+    if (colIndex < 2) return;
+
+    const firstRow = 0;
+    const td = getCellByPosition(firstRow, colIndex);
+
+    if (td) {
+        const input = td.querySelector('input, select');
+        if (input) {
+            // Gunakan setTimeout untuk memastikan DOM sudah siap
+            setTimeout(() => {
+                input.focus();
+
+                // Pilih semua teks yang ada (jika ada)
+                if (input.type === 'text' || input.type === 'number') {
+                    input.setSelectionRange(0, input.value.length);
+                }
+
+                // Simpan sebagai starting cell
+                selectionStartCell = { row: firstRow, col: colIndex };
+
+                // Tambahkan class untuk styling fokus
+                td.classList.add('force-focused');
+                input.classList.add('force-focused');
+
+                // Hapus class setelah beberapa saat
+                setTimeout(() => {
+                    td.classList.remove('force-focused');
+                    input.classList.remove('force-focused');
+                }, 300);
+
+                console.log('Focused input in column:', colIndex, 'value:', input.value);
+            }, 0);
+        }
+    }
 }
 
 // ============================================
@@ -742,41 +926,41 @@ function handleHeaderClick(e) {
 function getCellPosition(td) {
     const row = td.closest('tr');
     const tbody = row.closest('tbody');
-    
+
     const rowIndex = Array.from(tbody.children).indexOf(row);
     const colIndex = Array.from(row.children).indexOf(td);
-    
+
     return { row: rowIndex, col: colIndex };
 }
 
 function getCellByPosition(row, col) {
     const table = document.getElementById('testingTable');
     const tbody = table.querySelector('tbody');
-    
+
     if (!tbody || row >= tbody.children.length) return null;
-    
+
     const tr = tbody.children[row];
     if (!tr || col >= tr.children.length) return null;
-    
+
     return tr.children[col];
 }
 
 function selectCell(row, col) {
     if (col < 2) return;
-    
+
     const cellKey = `${row}-${col}`;
     selectedCells.add(cellKey);
-    
+
     const td = getCellByPosition(row, col);
     if (td) td.classList.add('selected');
 }
 
 function toggleCellSelection(row, col) {
     if (col < 2) return;
-    
+
     const cellKey = `${row}-${col}`;
     const td = getCellByPosition(row, col);
-    
+
     if (selectedCells.has(cellKey)) {
         selectedCells.delete(cellKey);
         if (td) td.classList.remove('selected');
@@ -791,13 +975,13 @@ function selectCellRange(start, end) {
     const endRow = Math.max(start.row, end.row);
     const startCol = Math.min(start.col, end.col);
     const endCol = Math.max(start.col, end.col);
-    
+
     for (let row = startRow; row <= endRow; row++) {
         for (let col = startCol; col <= endCol; col++) {
             if (col >= 2) selectCell(row, col);
         }
     }
-    
+
     const firstSelectableCol = Math.max(startCol, 2);
     const firstCell = getCellByPosition(startRow, firstSelectableCol);
     if (firstCell) {
@@ -815,38 +999,71 @@ function selectCellRange(start, end) {
 
 function selectColumn(colIndex) {
     if (colIndex < 2) return;
-    
+
     const table = document.getElementById('testingTable');
     const tbody = table.querySelector('tbody');
     const rows = tbody.children;
-    
+
     clearSelection();
-    
+
     for (let row = 0; row < rows.length; row++) {
-        selectCell(row, colIndex);
+        const cellKey = `${row}-${colIndex}`;
+        selectedCells.add(cellKey);
+
+        const td = getCellByPosition(row, colIndex);
+        if (td) {
+            td.classList.add('selected');
+
+            // Tambahkan class khusus untuk kolom yang dipilih dari header
+            if (row === 0) {
+                td.classList.add('header-selected');
+                const input = td.querySelector('input, select');
+                if (input) {
+                    input.classList.add('header-selected-input');
+                }
+            }
+        }
     }
-    
+
     const headerInfo = headerColumnMap.get(colIndex);
     if (headerInfo) {
         headerInfo.element.classList.add('selected');
     }
-}
 
+    console.log('Selected column:', colIndex, 'cells:', selectedCells.size);
+}
 function selectColumnRange(startCol, endCol) {
     if (startCol < 2) return;
-    
+
     const table = document.getElementById('testingTable');
     const tbody = table.querySelector('tbody');
     const rows = tbody.children;
-    
+
     clearSelection();
-    
+
     for (let row = 0; row < rows.length; row++) {
         for (let col = startCol; col <= endCol; col++) {
-            if (col >= 2) selectCell(row, col);
+            if (col >= 2) {
+                const cellKey = `${row}-${col}`;
+                selectedCells.add(cellKey);
+
+                const td = getCellByPosition(row, col);
+                if (td) {
+                    td.classList.add('selected');
+
+                    // Tambahkan class khusus untuk baris pertama
+                    if (row === 0) {
+                        td.classList.add('header-selected');
+                        const input = td.querySelector('input, select');
+                        if (input) {
+                            input.classList.add('header-selected-input');
+                        }
+                    }
+                }
+            }
         }
     }
-    
+
     for (let col = startCol; col <= endCol; col++) {
         if (col >= 2) {
             const headerInfo = headerColumnMap.get(col);
@@ -855,28 +1072,30 @@ function selectColumnRange(startCol, endCol) {
             }
         }
     }
+
+    console.log('Selected column range:', startCol, '-', endCol, 'cells:', selectedCells.size);
 }
 
 function selectAllEditableCells() {
     const table = document.getElementById('testingTable');
     const tbody = table.querySelector('tbody');
     const rows = tbody.children;
-    
+
     clearSelection();
-    
+
     for (let row = 0; row < rows.length; row++) {
         const cells = rows[row].children;
         for (let col = 2; col < cells.length; col++) {
             selectCell(row, col);
         }
     }
-    
+
     headerColumnMap.forEach((info, index) => {
         if (index >= 2) {
             info.element.classList.add('selected');
         }
     });
-    
+
     updateSelectionInfo();
 }
 
@@ -885,33 +1104,38 @@ function clearSelection() {
         const [row, col] = cellKey.split('-').map(Number);
         const td = getCellByPosition(row, col);
         if (td) {
-            td.classList.remove('selected', 'selectable');
+            td.classList.remove('selected', 'selectable', 'header-selected', 'force-focused');
+
+            // Hapus class dari input
+            const input = td.querySelector('input, select');
+            if (input) {
+                input.classList.remove('header-selected-input', 'force-focused');
+            }
         }
     });
+
     selectedCells.clear();
-    
+
     const table = document.getElementById('testingTable');
     if (table) {
         table.querySelectorAll('th.selected').forEach(header => {
             header.classList.remove('selected');
         });
     }
-    
+
     selectionStartCell = null;
-    
+
     const clearBtn = document.getElementById('btnClearSelection');
     if (clearBtn) clearBtn.style.display = 'none';
-    
-    document.getElementById('columnName').textContent = '-';
-    document.getElementById('columnLSL').textContent = '-';
-    document.getElementById('columnUSL').textContent = '-';
-    
+
     updateSelectionInfo("Selection cleared");
 }
 
+
 function getFirstSelectedCell() {
     if (selectedCells.size === 0) return null;
-    
+
+    // Urutkan sel berdasarkan baris lalu kolom
     const sortedCells = Array.from(selectedCells)
         .map(key => {
             const [row, col] = key.split('-').map(Number);
@@ -921,44 +1145,44 @@ function getFirstSelectedCell() {
             if (a.row === b.row) return a.col - b.col;
             return a.row - b.row;
         });
-    
-    const firstKey = sortedCells[0].key;
-    const [row, col] = firstKey.split('-').map(Number);
-    return getCellByPosition(row, col);
+
+    const firstCell = sortedCells[0];
+    return getCellByPosition(firstCell.row, firstCell.col);
 }
 
 // ============================================
 // BATCH EDITING
 // ============================================
 function applyToSelectedCells(sourceInput) {
-    if (selectedCells.size <= 1) return;
-    
+    if (!sourceInput || selectedCells.size <= 1) return;
+
     const value = sourceInput.value;
     const inputType = sourceInput.tagName;
-    
+
+    // Skip jika ini dari batch update
+    if (sourceInput._applyingBatch) return;
+
     selectedCells.forEach(cellKey => {
         const [row, col] = cellKey.split('-').map(Number);
         const td = getCellByPosition(row, col);
-        
+
         if (td) {
             const targetInput = td.querySelector('input, select');
             if (targetInput && targetInput.tagName === inputType && targetInput !== sourceInput) {
-                if (targetInput.tagName === 'SELECT') {
-                    if (targetInput.value !== value) {
-                        targetInput.value = value;
-                        targetInput.dispatchEvent(new Event('change'));
-                    }
-                } else {
-                    if (targetInput.value !== value) {
-                        targetInput.value = value;
-                        targetInput.dispatchEvent(new Event('input'));
+                if (targetInput.value !== value) {
+                    targetInput.value = value;
+
+                    if (targetInput.tagName === 'SELECT') {
+                        targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        const inputEvent = new Event('input', { bubbles: true });
+                        targetInput.dispatchEvent(inputEvent);
                     }
                 }
             }
         }
     });
 }
-
 // ============================================
 // COLUMN INFO
 // ============================================
@@ -967,18 +1191,18 @@ function updateColumnInfo(td) {
     const lsl = td.getAttribute('data-lsl') || '-';
     const usl = td.getAttribute('data-usl') || '-';
     const unit = td.getAttribute('data-unit') || '';
-    
+
     let lslDisplay = '-';
     let uslDisplay = '-';
-    
+
     if (lsl !== '-' && lsl !== '') {
         lslDisplay = unit ? `${lsl} ${unit}` : lsl;
     }
-    
+
     if (usl !== '-' && usl !== '') {
         uslDisplay = unit ? `${usl} ${unit}` : usl;
     }
-    
+
     document.getElementById('columnName').textContent = columnName;
     document.getElementById('columnLSL').textContent = lslDisplay;
     document.getElementById('columnUSL').textContent = uslDisplay;
@@ -989,18 +1213,18 @@ function updateColumnInfoFromHeader(th) {
     const lsl = th.getAttribute('data-lsl') || '-';
     const usl = th.getAttribute('data-usl') || '-';
     const unit = th.getAttribute('data-unit') || '';
-    
+
     let lslDisplay = '-';
     let uslDisplay = '-';
-    
+
     if (lsl !== '-' && lsl !== '') {
         lslDisplay = unit ? `${lsl} ${unit}` : lsl;
     }
-    
+
     if (usl !== '-' && usl !== '') {
         uslDisplay = unit ? `${usl} ${unit}` : usl;
     }
-    
+
     document.getElementById('columnName').textContent = columnName;
     document.getElementById('columnLSL').textContent = lslDisplay;
     document.getElementById('columnUSL').textContent = uslDisplay;
@@ -1012,7 +1236,7 @@ function updateColumnInfoFromHeader(th) {
 function updateSelectionInfo(message) {
     const infoElement = document.getElementById('selectionInfo');
     const clearBtn = document.getElementById('btnClearSelection');
-    
+
     if (message) {
         infoElement.textContent = message;
     } else {
@@ -1049,7 +1273,7 @@ function setupModalCloseEvents() {
             });
         }
     });
-    
+
     setupSuccessModalClose();
 }
 
@@ -1081,7 +1305,7 @@ async function loadProducts() {
 function populateProductDropdown() {
     const input = document.getElementById("selectProduct");
     const dropdown = document.getElementById("productDropdown");
-    
+
     if (!input || !dropdown) {
         console.error("Elemen selectProduct tidak ditemukan");
         return;
@@ -1100,12 +1324,12 @@ function populateProductDropdown() {
     input.placeholder = "Ketik atau pilih produk";
 
     const productNames = [...new Set(allProducts.map((p) => p.product_name))].sort();
-    
+
     initializeCustomDropdown(
         'selectProduct',
         'productDropdown',
         productNames,
-        function(selectedValue) {
+        function (selectedValue) {
             console.log("Produk dipilih:", selectedValue);
             onProductSelect(selectedValue);
         },
@@ -1118,7 +1342,7 @@ function populateProductDropdown() {
 function populateSeriesDropdown() {
     const input = document.getElementById("selectSeries");
     const dropdown = document.getElementById("seriesDropdown");
-    
+
     if (!input || !dropdown) {
         console.error("Elemen selectSeries tidak ditemukan");
         return;
@@ -1137,7 +1361,7 @@ function populateSeriesDropdown() {
     input.placeholder = "Ketik atau pilih device";
 
     const seriesOptions = [];
-    
+
     productSeries.forEach((product) => {
         let seriesDisplay = "";
         if (product.series_number && product.series) {
@@ -1163,7 +1387,7 @@ function populateSeriesDropdown() {
         'selectSeries',
         'seriesDropdown',
         seriesDisplayList,
-        function(selectedValue) {
+        function (selectedValue) {
             const matchingOption = seriesOptions.find(opt => opt.display === selectedValue);
             if (matchingOption) {
                 const productData = matchingOption.productData;
@@ -1173,7 +1397,7 @@ function populateSeriesDropdown() {
                     series_number: productData.series_number,
                     series: productData.series,
                 };
-                
+
                 console.log("Device dipilih:", selectedProduct);
                 input.classList.remove('invalid');
                 loadProductTestTypes(productData.id);
@@ -1192,7 +1416,7 @@ function populateSeriesDropdown() {
 function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback, isProductDropdown = false) {
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
-    
+
     if (!input || !dropdown) return;
 
     let selectedIndex = -1;
@@ -1202,8 +1426,8 @@ function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback
     function renderDropdown(filterText = '') {
         dropdown.innerHTML = '';
         const filter = filterText.toLowerCase();
-        
-        const filteredOptions = options.filter(option => 
+
+        const filteredOptions = options.filter(option =>
             option.toLowerCase().includes(filter)
         );
 
@@ -1219,31 +1443,31 @@ function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
             item.dataset.value = option;
-            
+
             if (filter && option.toLowerCase().includes(filter)) {
                 const regex = new RegExp(`(${filter})`, 'gi');
                 item.innerHTML = option.replace(regex, '<strong>$1</strong>');
             } else {
                 item.textContent = option;
             }
-            
+
             item.addEventListener('click', () => {
                 input.value = option;
                 dropdown.classList.remove('active');
                 selectedIndex = -1;
                 lastValidValue = option;
                 isManualInput = false;
-                
+
                 dropdown.querySelectorAll('.custom-dropdown-item').forEach(item => {
                     item.classList.remove('highlighted', 'selected');
                 });
-                
+
                 item.classList.add('selected');
                 input.classList.remove('invalid');
-                
+
                 if (onSelectCallback) onSelectCallback(option);
             });
-            
+
             dropdown.appendChild(item);
         });
     }
@@ -1259,13 +1483,13 @@ function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback
         dropdown.classList.add('active');
         renderDropdown(value);
         selectedIndex = -1;
-        
+
         const isValid = options.includes(value);
         isManualInput = true;
-        
+
         if (value && !isValid) {
             input.classList.add('invalid');
-            
+
             if (isProductDropdown) {
                 if (value !== lastValidValue) resetSeriesAndBelow();
             } else {
@@ -1283,7 +1507,7 @@ function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback
 
     input.addEventListener('keydown', (e) => {
         const items = dropdown.querySelectorAll('.custom-dropdown-item:not(.custom-dropdown-no-results)');
-        
+
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             selectedIndex = (selectedIndex + 1) % items.length;
@@ -1325,13 +1549,13 @@ function initializeCustomDropdown(inputId, dropdownId, options, onSelectCallback
         if (!input.contains(e.target) && !dropdown.contains(e.target)) {
             dropdown.classList.remove('active');
             selectedIndex = -1;
-            
+
             const currentValue = input.value.trim();
-            
+
             if (currentValue) {
                 if (!options.includes(currentValue)) {
                     input.classList.add('invalid');
-                    
+
                     if (isProductDropdown) {
                         if (isManualInput && currentValue !== lastValidValue) resetSeriesAndBelow();
                     } else {
@@ -1437,7 +1661,7 @@ function setupEventListeners() {
                 closeErrorModal();
                 closeSuccessModal();
                 closeConfirmModal();
-                
+
                 const navModal = document.getElementById("modalNavigationWarning");
                 if (navModal && navModal.classList.contains("active")) {
                     navModal.classList.remove("active");
@@ -1533,7 +1757,7 @@ async function selectTestType(testType) {
     document.querySelectorAll("#testTypeList button").forEach((btn) => {
         btn.classList.remove("selected");
     });
-    
+
     const button = document.querySelector(`#testTypeList button[data-test-type-id="${testType.id}"]`);
     if (button) button.classList.add("selected");
 
@@ -1606,7 +1830,7 @@ async function loadTemplate() {
         if (result.success) {
             const templates = result.data;
             console.log("Template tersedia:", templates);
-            
+
             const template = templates.find((t) => t.test_type_id === selectedTestType.id);
 
             if (template) {
@@ -1617,7 +1841,7 @@ async function loadTemplate() {
                 console.warn("Tidak ada template ditemukan untuk produk dan tipe test ini");
                 showErrorModal("Tidak ada template ditemukan untuk produk dan tipe test ini. Silakan buat template terlebih dahulu di halaman Generate.");
                 templateData = null;
-                
+
                 const testInfoSection = document.getElementById("testInfoSection");
                 if (testInfoSection) testInfoSection.classList.add("hidden");
             }
@@ -1683,15 +1907,15 @@ function startTesting() {
     const serialNumber = document.getElementById("inputSerialNumber")?.value.trim();
     const qtyInput = document.getElementById("inputQty");
     const qty = qtyInput ? parseInt(qtyInput.value) : 0;
-    
+
     const productInput = document.getElementById("selectProduct");
     const seriesInput = document.getElementById("selectSeries");
-    
+
     if (!productInput || !seriesInput) {
         showErrorModal("Elemen input tidak ditemukan");
         return;
     }
-    
+
     const productName = productInput.value.trim();
     const seriesDisplay = seriesInput.value.trim();
 
@@ -1742,7 +1966,7 @@ function startTesting() {
         }
         return display === seriesDisplay;
     });
-    
+
     if (!matchingSeries) {
         seriesInput.classList.add('invalid');
         showErrorModal("Device tidak valid. Silakan pilih dari daftar device.");
@@ -1830,7 +2054,7 @@ function displayTestInformation() {
     elements.testType.textContent = testInformation.testTypeName;
     elements.tester.textContent = testInformation.testerName;
     elements.date.textContent = testInformation.testDate;
-    
+
     if (testInformation.lotNumber && testInformation.lotNumber.trim() !== "") {
         elements.po.textContent = `${testInformation.poNumber} - ${testInformation.lotNumber}`;
     } else {
@@ -1889,10 +2113,10 @@ function generateTestingTable() {
     });
 
     let globalColumnIndex = 2;
-    
+
     customColumns.forEach((col, index) => {
         const fullName = col.name || "";
-        
+
         if (col.isSplit && col.sub && col.sub.length > 0) {
             hasSubColumns = true;
             const th = document.createElement("th");
@@ -2002,13 +2226,13 @@ function generateTableRow(columns, rowNumber) {
     tr.appendChild(tdSerial);
 
     let globalColumnIndex = 2;
-    
+
     columns.forEach((col, colIndex) => {
         if (col.isSplit && col.sub && col.sub.length > 0) {
             col.sub.forEach((subCol, subIndex) => {
                 const td = document.createElement("td");
                 td.setAttribute("data-global-index", globalColumnIndex);
-                
+
                 td.setAttribute('data-column-name', subCol.name || `Sub-${subIndex + 1}`);
                 td.setAttribute('data-lsl', subCol.lsl || '');
                 td.setAttribute('data-usl', subCol.usl || '');
@@ -2049,7 +2273,7 @@ function generateTableRow(columns, rowNumber) {
         } else {
             const td = document.createElement("td");
             td.setAttribute("data-global-index", globalColumnIndex);
-            
+
             td.setAttribute('data-column-name', col.name || "");
             td.setAttribute('data-lsl', col.lsl || "");
             td.setAttribute('data-usl', col.usl || "");
@@ -2284,9 +2508,9 @@ async function submitTestResults() {
                 if (result.success) {
                     testingInProgress = false;
                     cleanupNavigationLock();
-                    
+
                     showAfterSubmitOptions(passCount, failCount);
-                    
+
                 } else {
                     console.error('❌ Error dari backend:', result.error);
                     showErrorModal("Gagal submit: " + result.error);
@@ -2305,11 +2529,11 @@ async function submitTestResults() {
 function showAfterSubmitOptions(passCount, failCount) {
     const modal = document.getElementById("modalAfterSubmit");
     const messageElement = modal.querySelector("p");
-    
+
     if (messageElement) {
         messageElement.textContent = `Testing submitted successfully!\nPass: ${passCount} | Fail: ${failCount}\n\nWhat would you like to do next?`;
     }
-    
+
     modal.classList.add("active");
     setupAfterSubmitModalHandlers();
 }
@@ -2322,9 +2546,9 @@ function closeAfterSubmitModal() {
 function setupAfterSubmitModalHandlers() {
     const modal = document.getElementById("modalAfterSubmit");
     if (!modal) return;
-    
+
     const buttons = ['btnNewPO', 'btnNewLot', 'btnNewDevice'];
-    
+
     buttons.forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (btn) {
@@ -2332,7 +2556,7 @@ function setupAfterSubmitModalHandlers() {
             btn.parentNode.replaceChild(newBtn, btn);
         }
     });
-    
+
     document.getElementById("btnNewPO")?.addEventListener("click", handleNewPO);
     document.getElementById("btnNewLot")?.addEventListener("click", handleNewLot);
     document.getElementById("btnNewDevice")?.addEventListener("click", handleNewDevice);
@@ -2341,7 +2565,7 @@ function setupAfterSubmitModalHandlers() {
 function handleNewPO() {
     console.log("New PO selected");
     closeAfterSubmitModal();
-    
+
     document.getElementById("inputPONumber").value = "";
     document.getElementById("inputTestDate").value = new Date().toISOString().split("T")[0];
     document.getElementById("inputLotNumber").value = "";
@@ -2349,13 +2573,13 @@ function handleNewPO() {
     document.getElementById("inputQty").value = "1";
     document.getElementById("inputMultimeterSN").value = "";
     document.getElementById("inputOscilloscopeSN").value = "";
-    
+
     updateSerialRangeDisplay();
-    
+
     document.getElementById("testingSection").classList.add("hidden");
     document.getElementById("setupSection").classList.remove("hidden");
     document.getElementById("testInfoSection").classList.remove("hidden");
-    
+
     setTimeout(() => {
         document.getElementById("inputPONumber").focus();
     }, 100);
@@ -2364,18 +2588,18 @@ function handleNewPO() {
 function handleNewLot() {
     console.log("New Lot selected");
     closeAfterSubmitModal();
-    
+
     document.getElementById("inputLotNumber").value = "";
     document.getElementById("inputSerialNumber").value = "";
     document.getElementById("inputQty").value = "1";
     document.getElementById("inputTestDate").value = new Date().toISOString().split("T")[0];
-    
+
     updateSerialRangeDisplay();
-    
+
     document.getElementById("testingSection").classList.add("hidden");
     document.getElementById("setupSection").classList.remove("hidden");
     document.getElementById("testInfoSection").classList.remove("hidden");
-    
+
     setTimeout(() => {
         document.getElementById("inputLotNumber").focus();
     }, 100);
@@ -2384,9 +2608,9 @@ function handleNewLot() {
 function handleNewDevice() {
     console.log("New Device selected");
     closeAfterSubmitModal();
-    
+
     resetTestingData();
-    
+
     setTimeout(() => {
         document.getElementById("selectSeries").focus();
     }, 100);
