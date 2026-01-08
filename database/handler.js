@@ -11,36 +11,36 @@ function registerDatabaseHandlers(db) {
   ipcMain.handle('save-product-with-sequence', async (event, productData) => {
     console.log('💾 Handler: save-product-with-sequence called');
     const connection = await db.promise();
-    
+
     try {
       await connection.beginTransaction();
-      
+
       const { productName, seriesNumber, seriesName, testSequence, testParameters } = productData;
-      
+
       // 1. Check if product exists
       const [existing] = await connection.query(
         'SELECT id FROM products WHERE product_name = ? AND series_number = ?',
         [productName, seriesNumber]
       );
-      
+
       if (existing.length > 0) {
         await connection.rollback();
-        return { 
-          success: false, 
-          error: 'Product with this name and series number already exists!' 
+        return {
+          success: false,
+          error: 'Product with this name and series number already exists!'
         };
       }
-      
+
       // 2. Insert product - TANPA product_code
       const [productResult] = await connection.query(
         `INSERT INTO products (product_name, series_number, series, is_active, created_at)
          VALUES (?, ?, ?, 1, NOW())`,
         [productName, seriesNumber, seriesName || null]
       );
-      
+
       const productId = productResult.insertId;
       console.log('✅ Product created with ID:', productId);
-      
+
       // 3. Insert test sequence
       if (testSequence && testSequence.length > 0) {
         for (const test of testSequence) {
@@ -52,7 +52,7 @@ function registerDatabaseHandlers(db) {
         }
         console.log(`✅ Test sequence added: ${testSequence.length} tests`);
       }
-      
+
       // 4. Insert test parameters
       if (testParameters && Object.keys(testParameters).length > 0) {
         for (const [testTypeId, params] of Object.entries(testParameters)) {
@@ -78,15 +78,15 @@ function registerDatabaseHandlers(db) {
         }
         console.log('✅ Test parameters added');
       }
-      
+
       await connection.commit();
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         productId: productId,
-        message: 'Product with test sequence saved successfully!' 
+        message: 'Product with test sequence saved successfully!'
       };
-      
+
     } catch (err) {
       await connection.rollback();
       console.error('❌ Error saving product with sequence:', err);
@@ -112,7 +112,7 @@ function registerDatabaseHandlers(db) {
          GROUP BY p.id
          ORDER BY p.series_number, p.product_name`
       );
-      
+
       // Parse test_sequence
       const productsWithSequence = products.map(p => ({
         ...p,
@@ -121,7 +121,7 @@ function registerDatabaseHandlers(db) {
           return { testTypeName: name, sequenceOrder: parseInt(order), testTypeId: parseInt(id) };
         }) : []
       }));
-      
+
       console.log(`📦 Found ${productsWithSequence.length} products with sequences`);
       return { success: true, data: productsWithSequence };
     } catch (err) {
@@ -140,7 +140,7 @@ function registerDatabaseHandlers(db) {
          ORDER BY display_order`,
         [productId, testTypeId]
       );
-      
+
       console.log(`📋 Found ${params.length} parameters`);
       return { success: true, data: params };
     } catch (err) {
@@ -161,7 +161,7 @@ function registerDatabaseHandlers(db) {
          ORDER BY pts.sequence_order`,
         [productId]
       );
-      
+
       console.log(`🧪 Found ${testTypes.length} test types for product`);
       return { success: true, data: testTypes };
     } catch (err) {
@@ -180,7 +180,7 @@ function registerDatabaseHandlers(db) {
          WHERE is_active = 1
          ORDER BY series_number, product_name`
       );
-      
+
       // Group by series_number
       const groupedBySeries = {};
       products.forEach(p => {
@@ -190,7 +190,7 @@ function registerDatabaseHandlers(db) {
         }
         groupedBySeries[key].push(p);
       });
-      
+
       console.log(`📦 Products grouped into ${Object.keys(groupedBySeries).length} series`);
       return { success: true, data: groupedBySeries };
     } catch (err) {
@@ -220,32 +220,32 @@ function registerDatabaseHandlers(db) {
     console.log('💾 Handler: save-product called with:', productData);
     try {
       const { productName, series } = productData;
-      
+
       const [existing] = await db.promise().query(
         'SELECT id FROM products WHERE product_name = ?',
         [productName]
       );
-      
+
       if (existing.length > 0) {
-        return { 
-          success: false, 
-          error: 'Produk dengan nama ini sudah ada!' 
+        return {
+          success: false,
+          error: 'Produk dengan nama ini sudah ada!'
         };
       }
-      
+
       const [result] = await db.promise().query(
         `INSERT INTO products (product_name, series, created_at)
          VALUES (?, ?, NOW())`,
         [productName, series || null]
       );
-      
+
       console.log('✅ Product saved with ID:', result.insertId);
-      return { 
-        success: true, 
+      return {
+        success: true,
         id: result.insertId,
-        message: 'Produk berhasil ditambahkan!' 
+        message: 'Produk berhasil ditambahkan!'
       };
-      
+
     } catch (err) {
       console.error('❌ Error save product:', err);
       return { success: false, error: err.message };
@@ -293,10 +293,10 @@ function registerDatabaseHandlers(db) {
       );
 
       console.log('✅ Custom test type added with ID:', result.insertId);
-      return { 
-        success: true, 
-        id: result.insertId, 
-        message: 'Test type custom berhasil ditambahkan!' 
+      return {
+        success: true,
+        id: result.insertId,
+        message: 'Test type custom berhasil ditambahkan!'
       };
 
     } catch (err) {
@@ -334,9 +334,9 @@ function registerDatabaseHandlers(db) {
       );
 
       if (existing.length > 0) {
-        return { 
-          success: false, 
-          error: `A template for this product and test type already exists. Please use a different name or edit the existing one.` 
+        return {
+          success: false,
+          error: `A template for this product and test type already exists. Please use a different name or edit the existing one.`
         };
       }
 
@@ -344,9 +344,9 @@ function registerDatabaseHandlers(db) {
         `INSERT INTO templates (product_id, test_type_id, template_name, custom_columns, created_by) 
          VALUES (?, ?, ?, ?, ?)`,
         [
-          productId, 
-          testTypeId, 
-          templateName, 
+          productId,
+          testTypeId,
+          templateName,
           JSON.stringify({ columns }),
           null
         ]
@@ -355,10 +355,10 @@ function registerDatabaseHandlers(db) {
       const templateId = result.insertId;
       console.log('✅ Template saved with ID:', templateId);
 
-      return { 
-        success: true, 
-        id: templateId, 
-        message: 'Template berhasil disimpan!' 
+      return {
+        success: true,
+        id: templateId,
+        message: 'Template berhasil disimpan!'
       };
 
     } catch (err) {
@@ -381,8 +381,8 @@ function registerDatabaseHandlers(db) {
 
       const templates = rows.map(row => ({
         ...row,
-        custom_columns: typeof row.custom_columns === 'string' 
-          ? JSON.parse(row.custom_columns) 
+        custom_columns: typeof row.custom_columns === 'string'
+          ? JSON.parse(row.custom_columns)
           : row.custom_columns
       }));
 
@@ -454,10 +454,10 @@ function registerDatabaseHandlers(db) {
       );
 
       if (prevTest.length === 0) {
-        return { 
-          success: true, 
-          canProceed: false, 
-          message: 'Previous test not found for this serial number' 
+        return {
+          success: true,
+          canProceed: false,
+          message: 'Previous test not found for this serial number'
         };
       }
 
@@ -512,9 +512,9 @@ function registerDatabaseHandlers(db) {
 
             if (prevTest.length === 0 || prevTest[0].status !== 'Pass') {
               await connection.rollback();
-              return { 
-                success: false, 
-                error: `Serial ${entry.serialNumber}: Previous test not completed or failed` 
+              return {
+                success: false,
+                error: `Serial ${entry.serialNumber}: Previous test not completed or failed`
               };
             }
           }
@@ -552,8 +552,8 @@ function registerDatabaseHandlers(db) {
       await connection.commit();
 
       console.log(`✅ Successfully inserted ${insertedIds.length} test entries`);
-      return { 
-        success: true, 
+      return {
+        success: true,
         insertedCount: insertedIds.length,
         message: `Successfully saved ${insertedIds.length} test entries`
       };
@@ -635,14 +635,249 @@ function registerDatabaseHandlers(db) {
       );
 
       console.log(`✅ Retest entry created with ID: ${result.insertId}`);
-      return { 
-        success: true, 
-        retestId: result.insertId, 
-        displaySerialNumber: displaySN 
+      return {
+        success: true,
+        retestId: result.insertId,
+        displaySerialNumber: displaySN
       };
 
     } catch (err) {
       console.error('❌ Error creating retest:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  // ============================================
+  // MANAGE PRODUCT - UPDATE API
+  // ============================================
+  ipcMain.handle('update-product-data', async (event, updateData) => {
+    console.log('💾 Handler: update-product-data called');
+    console.log('📦 Update data:', updateData);
+
+    const connection = await db.promise();
+
+    try {
+      await connection.beginTransaction();
+
+      const { productId, testTypeId, product, parameters, template } = updateData;
+
+      // ============================================
+      // 1. UPDATE PRODUCT DETAILS (if changed)
+      // ============================================
+      if (product) {
+        console.log('📝 Updating product details...');
+
+        await connection.query(
+          `UPDATE products 
+         SET product_name = ?, 
+             series_number = ?, 
+             series = ?
+         WHERE id = ?`,
+          [
+            product.product_name,
+            product.series_number,
+            product.series || null,
+            productId
+          ]
+        );
+
+        console.log('✅ Product details updated');
+      }
+
+      // ============================================
+      // 2. UPDATE PARAMETERS (if changed)
+      // ============================================
+      if (parameters) {
+        console.log('📝 Updating parameters...');
+
+        // Delete existing parameters for this product + test type
+        await connection.query(
+          `DELETE FROM product_test_parameters 
+         WHERE product_id = ? AND test_type_id = ?`,
+          [productId, testTypeId]
+        );
+
+        // Insert updated parameters
+        if (parameters.length > 0) {
+          for (const param of parameters) {
+            await connection.query(
+              `INSERT INTO product_test_parameters 
+             (product_id, test_type_id, parameter_name, parameter_value, 
+              parameter_unit, lsl, usl, validation_type, display_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                productId,
+                testTypeId,
+                param.parameter_name,
+                param.parameter_value || null,
+                param.parameter_unit || null,
+                param.lsl || null,
+                param.usl || null,
+                param.validation_type || 'lsl_usl',
+                param.display_order || 0
+              ]
+            );
+          }
+        }
+
+        console.log(`✅ Parameters updated: ${parameters.length} parameters`);
+      }
+
+      // ============================================
+      // 3. UPDATE TEMPLATE (if changed)
+      // ============================================
+      if (template) {
+        console.log('📝 Updating template...');
+
+        await connection.query(
+          `UPDATE templates 
+         SET custom_columns = ?,
+             updated_at = NOW()
+         WHERE id = ?`,
+          [
+            JSON.stringify(template.custom_columns),
+            template.id
+          ]
+        );
+
+        console.log('✅ Template updated');
+      }
+
+      await connection.commit();
+
+      console.log('✅ All updates completed successfully');
+
+      return {
+        success: true,
+        message: 'Product data updated successfully'
+      };
+
+    } catch (err) {
+      await connection.rollback();
+      console.error('❌ Error updating product data:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  // ============================================
+  // MANAGE PRODUCT - DELETE API
+  // ============================================
+  ipcMain.handle('delete-product-data', async (event, deleteData) => {
+    console.log('🗑️ Handler: delete-product-data called');
+    console.log('📦 Delete data:', deleteData);
+
+    const connection = await db.promise();
+
+    try {
+      await connection.beginTransaction();
+
+      const { productId, testTypeId } = deleteData;
+
+      // ============================================
+      // OPTION 1: Delete only test sequence & related data
+      // (Keeps product if it has other test types)
+      // ============================================
+
+      console.log('🗑️ Deleting test sequence...');
+
+      // 1. Delete test entries
+      await connection.query(
+        `DELETE FROM test_entries 
+       WHERE product_id = ? AND test_type_id = ?`,
+        [productId, testTypeId]
+      );
+
+      // 2. Delete template
+      await connection.query(
+        `DELETE FROM templates 
+       WHERE product_id = ? AND test_type_id = ?`,
+        [productId, testTypeId]
+      );
+
+      // 3. Delete parameters
+      await connection.query(
+        `DELETE FROM product_test_parameters 
+       WHERE product_id = ? AND test_type_id = ?`,
+        [productId, testTypeId]
+      );
+
+      // 4. Delete test sequence
+      await connection.query(
+        `DELETE FROM product_test_sequence 
+       WHERE product_id = ? AND test_type_id = ?`,
+        [productId, testTypeId]
+      );
+
+      // 5. Check if product has other test sequences
+      const [remainingSequences] = await connection.query(
+        `SELECT COUNT(*) as count 
+       FROM product_test_sequence 
+       WHERE product_id = ?`,
+        [productId]
+      );
+
+      // If no more test sequences, delete the product
+      if (remainingSequences[0].count === 0) {
+        console.log('🗑️ No remaining test sequences, deleting product...');
+
+        await connection.query(
+          `DELETE FROM products WHERE id = ?`,
+          [productId]
+        );
+
+        console.log('✅ Product deleted (no remaining test types)');
+      } else {
+        console.log(`ℹ️ Product retained (${remainingSequences[0].count} test sequences remaining)`);
+      }
+
+      await connection.commit();
+
+      console.log('✅ Delete completed successfully');
+
+      return {
+        success: true,
+        message: 'Product data deleted successfully'
+      };
+
+    } catch (err) {
+      await connection.rollback();
+      console.error('❌ Error deleting product data:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  // ============================================
+  // OPTIONAL: DELETE ENTIRE PRODUCT
+  // ============================================
+  ipcMain.handle('delete-entire-product', async (event, productId) => {
+    console.log('🗑️ Handler: delete-entire-product called');
+    console.log('📦 Product ID:', productId);
+
+    const connection = await db.promise();
+
+    try {
+      await connection.beginTransaction();
+
+      // This will cascade delete everything related to the product
+      // due to foreign key constraints with ON DELETE CASCADE
+
+      await connection.query(
+        `DELETE FROM products WHERE id = ?`,
+        [productId]
+      );
+
+      await connection.commit();
+
+      console.log('✅ Entire product deleted successfully');
+
+      return {
+        success: true,
+        message: 'Entire product and all related data deleted successfully'
+      };
+
+    } catch (err) {
+      await connection.rollback();
+      console.error('❌ Error deleting entire product:', err);
       return { success: false, error: err.message };
     }
   });

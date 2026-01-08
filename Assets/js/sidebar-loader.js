@@ -2,10 +2,10 @@
 
 // Navigation lock system
 window.navigationLock = {
-    isTestingInProgress: false,
-    setTestingInProgress: function(status) {
-        this.isTestingInProgress = status;
-    }
+  isTestingInProgress: false,
+  setTestingInProgress: function (status) {
+    this.isTestingInProgress = status;
+  }
 };
 
 const SidebarLoader = {
@@ -85,90 +85,90 @@ const SidebarLoader = {
     });
   },
 
-setupDropdown() {
-  console.log("Setting up dropdown functionality...");
+  setupDropdown() {
+    console.log("Setting up dropdown functionality...");
 
-  const dropdownBtn = document.getElementById("menu-dropdown-btn");
-  const dropdownMenu = document.getElementById("dropdown-menu");
+    const dropdownBtn = document.getElementById("menu-dropdown-btn");
+    const dropdownMenu = document.getElementById("dropdown-menu");
 
-  if (!dropdownBtn || !dropdownMenu) {
-    console.error("Dropdown elements not found:", {
-      dropdownBtn: !!dropdownBtn,
-      dropdownMenu: !!dropdownMenu,
-    });
-    return;
-  }
-
-  console.log("Dropdown elements found, setting up event listeners");
-
-  // Hapus event listener lama untuk menghindari duplikasi
-  dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
-  const newDropdownBtn = document.getElementById("menu-dropdown-btn");
-  
-  newDropdownBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Dropdown button clicked");
-
-    // Toggle dropdown visibility
-    const isShowing = dropdownMenu.classList.contains("show");
-    
-    if (isShowing) {
-      dropdownMenu.classList.remove("show");
-      console.log("Dropdown closed");
-    } else {
-      // Tutup semua dropdown lain yang mungkin terbuka
-      document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-        if (menu !== dropdownMenu) menu.classList.remove('show');
+    if (!dropdownBtn || !dropdownMenu) {
+      console.error("Dropdown elements not found:", {
+        dropdownBtn: !!dropdownBtn,
+        dropdownMenu: !!dropdownMenu,
       });
-      
-      dropdownMenu.classList.add("show");
-      console.log("Dropdown opened");
+      return;
     }
-  });
 
-  // Close dropdown when clicking outside - IMPROVED
-  document.addEventListener("click", function (e) {
-    if (dropdownMenu.classList.contains("show") && 
-        !dropdownMenu.contains(e.target) && 
-        !newDropdownBtn.contains(e.target)) {
-      dropdownMenu.classList.remove("show");
-      console.log("Dropdown closed by outside click");
-    }
-  });
+    console.log("Dropdown elements found, setting up event listeners");
 
-  // Close dropdown with Escape key
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && dropdownMenu.classList.contains("show")) {
-      dropdownMenu.classList.remove("show");
-      newDropdownBtn.focus();
-      console.log("Dropdown closed with Escape key");
-    }
-  });
+    // Hapus event listener lama untuk menghindari duplikasi
+    dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
+    const newDropdownBtn = document.getElementById("menu-dropdown-btn");
 
-  // Handle dropdown item clicks
-  const dropdownItems = document.querySelectorAll(".dropdown-item");
-  dropdownItems.forEach((item) => {
-    item.addEventListener("click", function (e) {
+    newDropdownBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
+      console.log("Dropdown button clicked");
 
-      const targetPage = this.getAttribute("data-page");
-      console.log("Dropdown item clicked:", targetPage);
+      // Toggle dropdown visibility
+      const isShowing = dropdownMenu.classList.contains("show");
 
-      // Close dropdown
-      dropdownMenu.classList.remove("show");
+      if (isShowing) {
+        dropdownMenu.classList.remove("show");
+        console.log("Dropdown closed");
+      } else {
+        // Tutup semua dropdown lain yang mungkin terbuka
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+          if (menu !== dropdownMenu) menu.classList.remove('show');
+        });
 
-      // Navigate to the selected page
-      if (targetPage) {
-        console.log('Calling navigateToPage with:', targetPage);
-        SidebarLoader.navigateToPage(targetPage);
+        dropdownMenu.classList.add("show");
+        console.log("Dropdown opened");
       }
     });
-  });
 
-  console.log("Dropdown functionality setup complete");
-},
+    // Close dropdown when clicking outside - IMPROVED
+    document.addEventListener("click", function (e) {
+      if (dropdownMenu.classList.contains("show") &&
+        !dropdownMenu.contains(e.target) &&
+        !newDropdownBtn.contains(e.target)) {
+        dropdownMenu.classList.remove("show");
+        console.log("Dropdown closed by outside click");
+      }
+    });
+
+    // Close dropdown with Escape key
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && dropdownMenu.classList.contains("show")) {
+        dropdownMenu.classList.remove("show");
+        newDropdownBtn.focus();
+        console.log("Dropdown closed with Escape key");
+      }
+    });
+
+    // Handle dropdown item clicks
+    const dropdownItems = document.querySelectorAll(".dropdown-item");
+    dropdownItems.forEach((item) => {
+      item.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const targetPage = this.getAttribute("data-page");
+        console.log("Dropdown item clicked:", targetPage);
+
+        // Close dropdown
+        dropdownMenu.classList.remove("show");
+
+        // Navigate to the selected page
+        if (targetPage) {
+          console.log('Calling navigateToPage with:', targetPage);
+          SidebarLoader.navigateToPage(targetPage);
+        }
+      });
+    });
+
+    console.log("Dropdown functionality setup complete");
+  },
 
   navigateToPage(pageName) {
     // Map page names to file paths (relative to main.js root directory)
@@ -180,21 +180,22 @@ setupDropdown() {
       generate: "Page/Generate.html",
       testing: "Page/Testing.html",
       addproduct: "Page/AddProduct.html",
-      settings: "Page/Settings.html"
+      settings: "Page/Settings.html",
+      manage: "Page/ManageProduct.html"
     };
 
     const pagePath = pageMap[pageName.toLowerCase()];
 
     // Cek jika testing sedang berjalan
     if (window.navigationLock && window.navigationLock.isTestingInProgress) {
-        console.log('❌ Navigation blocked: Testing in progress');
+      console.log('❌ Navigation blocked: Testing in progress');
 
-        const event = new CustomEvent('navigationAttempt', { 
-            detail: { pageName } 
-        });
-        document.dispatchEvent(event);
-        
-        return; // Hentikan navigasi
+      const event = new CustomEvent('navigationAttempt', {
+        detail: { pageName }
+      });
+      document.dispatchEvent(event);
+
+      return; // Hentikan navigasi
     }
 
     if (!pagePath) {
@@ -245,12 +246,12 @@ setupDropdown() {
     const buttons = document.querySelectorAll(".sidebar-btn[data-page]");
     // Get the menu dropdown button (doesn't have data-page)
     const menuButton = document.querySelector('.menu-dropdown-btn');
-    
+
     // Remove active class from all buttons first
     buttons.forEach(button => {
       button.classList.remove("active");
     });
-    
+
     if (menuButton) {
       menuButton.classList.remove("active");
     }
@@ -258,8 +259,8 @@ setupDropdown() {
     let activeFound = false;
 
     // Define which pages should highlight the menu button
-    const menuPages = ['generate', 'dataentry', 'addproduct', 'testing', 'settings'];
-    
+    const menuPages = ['generate', 'dataentry', 'addproduct', 'manage'];
+
     // Check if this is a menu page
     if (menuPages.includes(activePage.toLowerCase())) {
       if (menuButton) {

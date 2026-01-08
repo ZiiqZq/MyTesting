@@ -45,12 +45,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getProductsBySeries: () => ipcRenderer.invoke('get-products-by-series'),
 
   // ============================================
-  // DATA ENTRY API - HAPUS SATU DEFINISI
+  // MANAGE PRODUCT - UPDATE & DELETE APIs (NEW)
+  // ============================================
+  updateProductData: (updateData) => ipcRenderer.invoke('update-product-data', updateData),
+  deleteProductData: (deleteData) => ipcRenderer.invoke('delete-product-data', deleteData),
+
+  // ============================================
+  // DATA ENTRY API
   // ============================================
   getTemplatesByProduct: (productId) => ipcRenderer.invoke('get-templates-by-product', productId),
   getCompletedTestsByProduct: (productId) => ipcRenderer.invoke('get-completed-tests-by-product', productId),
   checkPreviousTest: (data) => ipcRenderer.invoke('check-previous-test', data),
-  submitTestEntries: (submitData) => ipcRenderer.invoke('submit-test-entries', submitData), // ← HANYA INI SATU
+  submitTestEntries: (submitData) => ipcRenderer.invoke('submit-test-entries', submitData),
 
   // ============================================
   // RETEST API (ADMIN ONLY)
@@ -80,4 +86,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 });
 
-console.log('🔌 Preload script loaded - electronAPI exposed with new product management APIs');
+console.log('🔌 Preload script loaded - electronAPI exposed with Manage Product APIs');
